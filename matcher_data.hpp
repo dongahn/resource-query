@@ -31,7 +31,7 @@
 #include <set>
 #include <map>
 #include "jobspec.hpp"
-#include "../planner/Planner/planner.h"
+#include "planner/planner.h"
 
 namespace resource_model {
 

@@ -35,7 +35,7 @@
 #include "matcher_data.hpp"
 #include "scoring_api.hpp"
 #include "jobspec.hpp"
-#include "../planner/Planner/planner.h"
+#include "planner/planner.h"
 
 namespace resource_model {
 

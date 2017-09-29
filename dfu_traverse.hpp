@@ -38,7 +38,7 @@
 #include "system_defaults.hpp"
 #include "scoring_api.hpp"
 #include "jobspec.hpp"
-#include "../planner/Planner/planner.h"
+#include "planner/planner.h"
 
 namespace resource_model {
 
@@ -628,7 +628,7 @@ int dfu_impl_t::resolve (vtx_t root, std::vector<Resource> &resources,
 
     // resolve remaining unresolved resource types
     for (auto &subsystem : m_match->subsystems ()) {
-        std::vector<const std::string> types;
+        std::vector<std::string> types;
         dfu.resrc_types (subsystem, types);
         for (auto &type : types) {
             if (dfu.qualified_count (subsystem, type) == 0) {
@@ -666,7 +666,7 @@ int dfu_impl_t::enforce (const subsystem_t &ss, scoring_api_t &dfu)
 {
     int rc = 0;
     try {
-        std::vector<const std::string> resource_types;
+        std::vector<std::string> resource_types;
         dfu.resrc_types (ss, resource_types);
         for (auto &t : resource_types) {
             int best_i = dfu.best_i (ss, t);

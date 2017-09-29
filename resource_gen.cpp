@@ -28,7 +28,7 @@
 #include <cstdint>
 #include <boost/algorithm/string.hpp>
 #include "resource_gen.hpp"
-#include "../planner/Planner/planner.h"
+#include "planner/planner.h"
 
 using namespace std;
 using namespace boost;

@@ -440,7 +440,7 @@ public:
         }
     }
 
-    void resrc_types (const subsystem_t &s, std::vector<const std::string> &v)
+    void resrc_types (const subsystem_t &s, std::vector<std::string> &v)
     {
         handle_new_subsystem (s);
         for (auto &kv : *(m_ssys_map[s]))

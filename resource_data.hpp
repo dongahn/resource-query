@@ -26,7 +26,7 @@
 #include <uuid/uuid.h>
 #include <string>
 #include <map>
-#include "../planner/Planner/planner.h"
+#include "planner/planner.h"
 
 namespace resource_model {
 
