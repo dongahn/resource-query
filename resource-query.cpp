@@ -367,7 +367,7 @@ static void set_default_params (test_params_t &params)
     params.o_format = GRAPHVIZ_DOT;
 }
 
-static int string_to_graph_format (string st, emit_format_t format)
+static int string_to_graph_format (string st, emit_format_t &format)
 {
     int rc = 0;
     if (iequals (st, string ("dot")))
@@ -500,9 +500,53 @@ static void write_to_graphviz (f_resource_graph_t &fg, subsystem_t ss, fstream &
 static void write_to_graphml (f_resource_graph_t &fg, fstream &o)
 {
     dynamic_properties dp;
+    f_vtx_iterator vi, v_end;
+    f_edg_iterator ei, e_end;
+    map<vtx_t, string> subsystems;
+    map<edg_t, string> esubsystems;
+    map<vtx_t, string> properties;
+    map<vtx_t, string> paths;
+    associative_property_map<map<vtx_t, string> > subsystems_map (subsystems);
+    associative_property_map<map<edg_t, string> > esubsystems_map (esubsystems);
+    associative_property_map<map<vtx_t, string> > props_map (properties);
+    associative_property_map<map<vtx_t, string> > paths_map (paths);
+
+    for (tie (vi, v_end) = vertices (fg); vi != v_end; ++vi) {
+        paths[*vi] = "{";
+        for (auto &kv : fg[*vi].paths) {
+            paths[*vi] += kv.first + ": \"" + kv.second + "\""; 
+        }
+        paths[*vi] += "}";
+
+        subsystems[*vi] = "{";
+        for (auto &kv : fg[*vi].idata.member_of) {
+            subsystems[*vi] += kv.first + ": \"" + kv.second + "\""; 
+        }
+        subsystems[*vi] += "}";
+    }
+
+    for (tie (ei, e_end) = edges (fg); ei != e_end; ++ei) {
+        esubsystems[*ei] = "{"; 
+        for (auto &kv : fg[*ei].idata.member_of) {
+            esubsystems[*ei] += kv.first + ": \"" + kv.second + "\"";
+        }
+        esubsystems[*ei] += "}"; 
+    }
+
+    // Resource Pool Vertices
+    dp.property ("paths", paths_map);
+    dp.property ("props", props_map);
+    dp.property ("member_of", subsystems_map);
+    dp.property ("type", get (&resource_pool_t::type, fg));
+    dp.property ("basename", get (&resource_pool_t::basename, fg));
     dp.property ("name", get (&resource_pool_t::name, fg));
-    dp.property ("name", get (&resource_relation_t::name, fg));
-    write_graphml(o, fg, dp, true);
+    dp.property ("id", get (&resource_pool_t::id, fg));
+    dp.property ("size", get (&resource_pool_t::size, fg));
+    dp.property ("unit", get (&resource_pool_t::unit, fg));
+
+    // Relation Edges
+    dp.property ("member_of", esubsystems_map);
+    write_graphml (o, fg, dp, true);
 }
 
 static void write_to_graph (resource_context_t *ctx)
