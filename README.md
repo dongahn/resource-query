@@ -45,33 +45,34 @@ specification that test.jobspec contains.
 
 ```
 resource-query> match allocate test.jobspec
-      ---------------core3[1:X]
-      ---------------core4[1:X]
-      ---------------core5[1:X]
-      ---------------core6[1:X]
-      ---------------core7[1:X]
-      ---------------gpu0[1:X]
-      ---------------memory0[6:X]
-      ------------socket0[1:S]
-      ---------------core11[1:X]
-      ---------------core12[1:X]
-      ---------------core13[1:X]
-      ---------------core14[1:X]
-      ---------------core15[1:X]
-      ---------------gpu1[1:X]
-      ---------------memory0[6:X]
-      ------------socket1[1:S]
-      ---------node71[1:S]
-      ------rack3[1:S]
-      ---medium-coarse-cluster0[0:S]
+      ---------------core31[1:x]
+      ---------------core32[1:x]
+      ---------------core33[1:x]
+      ---------------core34[1:x]
+      ---------------core35[1:x]
+      ---------------gpu0[1:x]
+      ---------------memory1[2:x]
+      ---------------memory2[2:x]
+      ---------------memory3[2:x]
+      ------------socket0[1:x]
+      ---------------core67[1:x]
+      ---------------core68[1:x]
+      ---------------core69[1:x]
+      ---------------core70[1:x]
+      ---------------core71[1:x]
+      ---------------gpu1[1:x]
+      ---------------memory5[2:x]
+      ---------------memory6[2:x]
+      ---------------memory7[2:x]
+      ------------socket1[1:x]
+      ---------node1[1:s]
+      ------rack0[1:s]
+      ---tiny0[0:s]
 INFO: =============================
-INFO: JOBID=39
+INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
-INFO: AT=0
-INFO: SELECTED RESOURCE ABOVE
-INFO: ELAPSE=0.049726
+INFO: SCHEDULED AT=Now
 INFO: =============================
-
 ```
  
 The following command reserved the best-matching resources for the specification
@@ -79,31 +80,33 @@ given by test.jobspec.
 
 ```
 resource-query> match allocate_orelse_reserve test.jobspec
-      ---------------core3[1:X]
-      ---------------core4[1:X]
-      ---------------core5[1:X]
-      ---------------core6[1:X]
-      ---------------core7[1:X]
-      ---------------gpu0[1:X]
-      ---------------memory0[6:X]
-      ------------socket0[1:S]
-      ---------------core11[1:X]
-      ---------------core12[1:X]
-      ---------------core13[1:X]
-      ---------------core14[1:X]
-      ---------------core15[1:X]
-      ---------------gpu1[1:X]
-      ---------------memory0[6:X]
-      ------------socket1[1:S]
-      ---------node71[1:S]
-      ------rack3[1:S]
-      ---medium-coarse-cluster0[0:S]
+      ---------------core31[1:x]
+      ---------------core32[1:x]
+      ---------------core33[1:x]
+      ---------------core34[1:x]
+      ---------------core35[1:x]
+      ---------------gpu0[1:x]
+      ---------------memory1[2:x]
+      ---------------memory2[2:x]
+      ---------------memory3[2:x]
+      ------------socket0[1:x]
+      ---------------core67[1:x]
+      ---------------core68[1:x]
+      ---------------core69[1:x]
+      ---------------core70[1:x]
+      ---------------core71[1:x]
+      ---------------gpu1[1:x]
+      ---------------memory5[2:x]
+      ---------------memory6[2:x]
+      ---------------memory7[2:x]
+      ------------socket1[1:x]
+      ---------node1[1:s]
+      ------rack0[1:s]
+      ---tiny0[0:s]
 INFO: =============================
-INFO: JOBID=100
+INFO: JOBID=3
 INFO: RESOURCES=RESERVED
-INFO: AT=3600
-INFO: SELECTED RESOURCE ABOVE
-INFO: ELAPSE=0.049793
+INFO: SCHEDULED AT=3600
 INFO: =============================
 ```
 
@@ -112,30 +115,29 @@ test.jobspec:
 ```yaml
 version: 1
 resources:
-  - type: node
-    count: 1
+  - type: slot
+    count: 4
+    label: default
     with:
-      - type: socket
-        count: 2
+      - type: node
+        count: 1
         with:
-          - type: core
-            count: 5
-            exclusive: true
-          - type: gpu
-            count: 1
-            exclusive: true
-          - type: memory
-            count: 6
-            exclusive: true
+          - type: socket
+            count: 2
+            with:
+              - type: core
+                count: 5
+              - type: gpu
+                count: 1
+              - type: memory
+                count: 6
 
-# a comment
 attributes:
   system:
     duration: 3600
 tasks:
   - command: app
-    slot:
-      type: socket
+    slot: default
     count:
       per_slot: 1
 ```
