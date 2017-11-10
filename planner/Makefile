@@ -1,8 +1,8 @@
 CPP       := g++
 CC        := gcc
 INCLUDES  := -I./ -I/usr/include/czmq -I/usr/local/include
-CFLAGS    := -Wall -O3 -g
-CPPFLAGS  := -Wall -O3 -g
+CFLAGS    := -Wall -O0 -g
+CPPFLAGS  := -Wall -O0 -g
 #CFLAGS    := -Wall -O0 -g
 #CPPFLAGS  := -Wall -O0 -g
 LDFLAGS   := -L/usr/local/lib -lczmq -lzmq 

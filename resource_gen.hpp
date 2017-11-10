@@ -30,6 +30,7 @@
 #include "resource_graph.hpp"
 #include "resource_gen_spec.hpp"
 
+namespace Flux {
 namespace resource_model {
 
 class resource_generator_t {
@@ -46,6 +47,7 @@ private:
 };
 
 } // namespace resource_model
+} // namespace Flux
 
 #endif // RESOURCE_GEN_HPP
 

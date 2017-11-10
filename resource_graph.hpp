@@ -32,15 +32,14 @@
 #include <boost/graph/graphml.hpp>
 #include "resource_data.hpp"
 
+namespace Flux {
 namespace resource_model {
 
 using namespace boost;
 
-enum emit_format_t {
+enum class emit_format_t {
     GRAPHVIZ_DOT,
     GRAPH_ML,
-    //NEO4J_CYPHER,
-    //FLUX_R_SPEC
 };
 
 typedef pool_infra_t resource_pool_t::* pinfra_t;
@@ -151,6 +150,7 @@ private:
 };
 
 } // namespace resource_model
+} // namespace Flux
 
 #endif // RESOURCE_GRAPH_HPP
 

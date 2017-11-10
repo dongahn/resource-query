@@ -12,15 +12,19 @@ resources:
               - type: socket
                 count: 2
                 with:
-                  - type: core
-                    count: 2
-                    exclusive: true
-                  - type: gpu
+                  - type: slot
                     count: 1
-                    exclusive: true
-                  - type: memory
-                    count: 4
-                    exclusive: true
+                    label: default
+                    with:
+                      - type: core
+                        count: 2
+                        exclusive: true
+                      - type: gpu
+                        count: 1
+                        exclusive: true
+                      - type: memory
+                        count: 4
+                        exclusive: true
 # a comment
 attributes:
   system:

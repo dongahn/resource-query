@@ -37,6 +37,7 @@
 #include "jobspec.hpp"
 #include "planner/planner.h"
 
+namespace Flux {
 namespace resource_model {
 
 /*! Base DFU matcher class.
@@ -64,24 +65,26 @@ public:
 
     /*!
      *  Called back when all of the graph has been visited.
-     *  Please see README.SCORING_HOWTO that details our scoring interface.
      *
-     *  \param subsystem
-     *               subsystem_t for the dominant subsystem.
-     *  \param resources
-     *               vector of resources to be matched.
-     *  \param g     filtered resource graph.
-     *  \param dfu   score interface object - map of the sorted vectors
-     *               of the scores computed from depth-first walks under
-     *               vertex u on dominant subsystems and up-walks on all
-     *               of the selected auxiliary subsystems. This map is keyed
-     *               off of a subsystem_t object.
-     *
-     *  \return      return 0 on success; otherwise -1.
+     *  \param subsystem subsystem_t object of the dominant subsystem.
+     *  \param resources vector of resources to be matched.
+     *  \param g         filtered resource graph.
+     *  \param dfu       score interface object - TODO: document
+     *  \return          return 0 on success; otherwise -1.
      */
     virtual int dom_finish_graph (const subsystem_t &subsystem,
-                                  const std::vector<Resource> &resources,
+                                  const std::vector<Flux::Jobspec::Resource> &resources,
                                   const f_resource_graph_t &g, scoring_api_t &dfu)
+    {
+        return 0;
+    }
+
+    /*!
+     * Called back on each postorder visit of some group of slot resources
+     * (resources that can be contained within one or more slots) of the dominant
+     * subsystem.
+     */
+    virtual int dom_finish_slot (const subsystem_t &subsystem, scoring_api_t &dfu)
     {
         return 0;
     }
@@ -89,17 +92,16 @@ public:
     /*!
      *  Called back on each preorder visit of the dominant subsystem.
      *
-     *  \param u     descriptor of the visiting vertex.
-     *  \param subsystem
-     *               subsystem_t for the dominant subsystem.
-     *  \param resources
-     *               vector of resources to be matched.
-     *  \param g     filtered resource graph.
+     *  \param u         descriptor of the visiting vertex.
+     *  \param subsystem subsystem_t object of the dominant subsystem.
+     *  \param resources vector of resources to be matched (resource section
+     *                   of cannonical job spec).
+     *  \param g         filtered resource graph.
      *
-     *  \return      return 0 on success; otherwise -1.
+     *  \return          return 0 on success; otherwise -1.
      */
     virtual int dom_discover_vtx (vtx_t u, const subsystem_t &subsystem,
-                                  const std::vector<Resource> &resources,
+                                  const std::vector<Flux::Jobspec::Resource> &resources,
                                   const f_resource_graph_t &g)
     {
         m_trav_level++;
@@ -110,24 +112,17 @@ public:
      *  Called back on each postorder visit of the dominant subsystem. Should
      *  return a score calculated based on the subtree and up walks using the score
      *  API object (dfu). Any score aboved MATCH_MET is qualified to be a match.
-     *  Please see README.SCORING_HOWTO that details our scoring interface.
      *
-     *  \param u     descriptor of the visiting vertex
-     *  \param subsystem
-     *               subsystem_t for the dominant subsystem
-     *  \param resources
-     *               vector of resources to be matched
-     *  \param g     filtered resource graph
-     *  \param dfu   score interface object - map of the sorted vectors
-     *               of the scores computed from depth-first walks under
-     *               vertex u on dominant subsystems and up-walks on all
-     *               of the selected auxiliary subsystems. This map is keyed
-     *               off of a subsystem_t object.
+     *  \param u         descriptor of the visiting vertex
+     *  \param subsystem subsystem_t object of the dominant subsystem
+     *  \param resources vector of resources to be matched
+     *  \param g         filtered resource graph
+     *  \param dfu       score interface object: TODO: document
      *
-     *  \return      return 0 on success; otherwise -1
+     *  \return          return 0 on success; otherwise -1
      */
     virtual int dom_finish_vtx (vtx_t u, const subsystem_t &subsystem,
-                                const std::vector<Resource> &resources,
+                                const std::vector<Flux::Jobspec::Resource> &resources,
                                 const f_resource_graph_t &g,
                                 scoring_api_t &dfu)
     {
@@ -137,17 +132,15 @@ public:
 
     /*! Called back on each pre-up visit of an auxiliary subsystem.
      *
-     *  \param u     descriptor of the visiting vertex
-     *  \param subsystem
-     *               subsytem_t of the auxiliary subsystem being walked
-     *  \param resources
-     *               vector of resources to be matched
-     *  \param g     filtered resource graph
+     *  \param u         descriptor of the visiting vertex
+     *  \param subsystem subsytem_t of the auxiliary subsystem being walked
+     *  \param resources vector of resources to be matched
+     *  \param g         filtered resource graph
      *
-     *  \return      return 0 on success; otherwise -1
+     *  \return          return 0 on success; otherwise -1
      */
     virtual int aux_discover_vtx (vtx_t u, const subsystem_t &subsystem,
-                                  const std::vector<Resource> &resources,
+                                  const std::vector<Flux::Jobspec::Resource> &resources,
                                   const f_resource_graph_t &g)
 
     {
@@ -159,24 +152,17 @@ public:
      *  Called back on each post-up visit of the auxiliary subsystem. Should
      *  return a score calculated based on the subtree and up walks using the score
      *  API object (dfu). Any score aboved MATCH_MET is qualified to be a match.
-     *  Please see README.SCORING_HOWTO that details our scoring interface.
      *
-     *  \param u     descriptor of the visiting vertex
-     *  \param subsystem
-     *               subsytem_t info for an auxiliary subsystem
-     *  \param resources
-     *               vector of resources to be matched
-     *  \param g     filtered resource graph object
-     *  \param dfu
-     *               score interface object - map of the sorted vectors
-     *               of the scores computed from depth-first walks under
-     *               vertex u on dominant subsystems and up-walks on all
-     *               of the selected auxiliary subsystems. This map is keyed
-     *               off of a subsystem_t object
-     *  \return      return 0 on success; otherwise -1
+     *  \param u         descriptor of the visiting vertex
+     *  \param subsystem subsytem_t object of an auxiliary subsystem
+     *  \param resources vector of resources to be matched
+     *  \param g         filtered resource graph object
+     *  \param dfu       score interface object - TODO: document
+     *
+     *  \return          return 0 on success; otherwise -1
      */
     virtual int aux_finish_vtx (vtx_t u, const subsystem_t &subsystem,
-                                const std::vector<Resource> &resources,
+                                const std::vector<Flux::Jobspec::Resource> &resources,
                                 const f_resource_graph_t &g, scoring_api_t &dfu)
     {
         m_trav_level--;
@@ -203,7 +189,8 @@ public:
 private:
     int m_trav_level;
 };
-}
+} // namespace resource_model
+} // namespace Flux
 
 #endif // DFU_MATCH_CB_HPP
 

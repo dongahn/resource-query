@@ -1,0 +1,12 @@
+# 4x cluster[1]->rack[1]->node[1]->slot[1]->socket[1]->core[1]  
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+match allocate_orelse_reserve ../data/jobspecs/test001.cluster1.rack1.node1.slot1.socket1.core1.yaml
+quit

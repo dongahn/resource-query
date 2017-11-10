@@ -28,7 +28,7 @@
 
 using namespace std;
 using namespace boost;
-using namespace resource_model;
+using namespace Flux::resource_model;
 
 #define OPTIONS "fh"
 static const struct option longopts[] = {

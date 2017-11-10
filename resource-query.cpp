@@ -25,9 +25,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <getopt.h>
-#include <sys/time.h>
-#include <map>
-#include <vector>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
@@ -36,87 +33,23 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <boost/algorithm/string.hpp>
-#include "resource_graph.hpp"
-#include "resource_gen.hpp"
-#include "dfu_traverse.hpp"
+#include "command.hpp"
 #include "dfu_match_id_based.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace resource_model;
+using namespace Flux::resource_model;
 
-#define OPTIONS "G:S:P:g:o:h"
+#define OPTIONS "G:S:P:g:o:e:h"
 static const struct option longopts[] = {
     {"grug",             required_argument,  0, 'G'},
     {"match-subsystems", required_argument,  0, 'S'},
     {"match-policy",     required_argument,  0, 'P'},
     {"graph-format",     required_argument,  0, 'g'},
     {"output",           required_argument,  0, 'o'},
+    {"elapse",           required_argument,  0, 'v'},
     {"help",             no_argument,        0, 'h'},
     { 0, 0, 0, 0 },
-};
-
-struct job_info_t {
-    job_info_t (uint64_t j, bool r, int64_t at, string fn, double o)
-        : jobid (j), reserved (r), scheduled_at (at), jobspec_fn (fn),
-          overhead (o) { }
-    uint64_t jobid = UINT64_MAX;
-    bool reserved = false;
-    int64_t scheduled_at = -1;
-    string jobspec_fn;
-    double overhead = 0.0f;
-};
-
-struct test_params_t {
-    string grug;
-    string matcher_name;
-    string matcher_policy;
-    string o_fname;
-    string o_fext;
-    emit_format_t o_format;
-};
-
-struct resource_context_t {
-    test_params_t params;
-    uint64_t jobid_counter;
-    resource_graph_db_t db;
-    multi_subsystems_t subsystems;
-    map<string, f_resource_graph_t *> resource_graph_views;
-    dfu_match_cb_t *matcher;
-    dfu_traverser_t traverser;
-    map<uint64_t, job_info_t *> jobs;
-    map<uint64_t, uint64_t> allocations;
-    map<uint64_t, uint64_t> reservations;
-};
-
-static int cmd_match (resource_context_t *ctx, vector<string> &args);
-static int cmd_cancel (resource_context_t *ctx, vector<string> &args);
-static int cmd_list (resource_context_t *ctx, vector<string> &args);
-static int cmd_info (resource_context_t *ctx, vector<string> &args);
-static int cmd_cat (resource_context_t *ctx, vector<string> &args);
-static int cmd_quit (resource_context_t *ctx, vector<string> &args);
-static int cmd_help (resource_context_t *ctx, vector<string> &args);
-
-typedef int cmd_func_f (resource_context_t *, vector<string> &);
-
-struct command_t {
-    string name;
-    string abbr;
-    cmd_func_f *cmd;
-    string note;
-};
-
-command_t commands[] = {
-    { "match",  "m", cmd_match, "Allocate or reserve matching resources (subcmd:"
-"allocate | allocate_orelse_reserve): resource-query> match allocate jobspec"},
-    { "cancel", "c", cmd_cancel, "Cancel an allocation or reservation: "
-"resource-query> cancel jobid" },
-    { "list", "l", cmd_list, "List all jobs: resource-query> list" },
-    { "info", "i", cmd_info, "Print the info on a jobid: resource-query> info jobid" },
-    { "cat", "a", cmd_cat, "Print the jobspec file: resource-query> cat jobspec" },
-    { "help", "h", cmd_help, "Print help message: resource-query> help" },
-    { "quit", "q", cmd_quit, "Quit the session: resource-query> quit" },
-    { "NA", "NA", (cmd_func_f *)NULL, "NA" }
 };
 
 static void usage (int code)
@@ -129,23 +62,25 @@ static void usage (int code)
 "Flux's Canonical Job Specification (RFC 14).\n"
 "\n"
 "Read in a resource-graph generation recipe written in the GRUG format\n"
-"and populate a resource-graph data store representing the compute and\n"
+"and populate the resource-graph data store representing the compute and\n"
 "other HPC resources and their relationships (RFC 4).\n"
 "\n"
 "Provide a simple command-line interface (cli) to allow users to allocate\n"
-"or reserve the resource set in this resource-graph data store.\n"
+"or reserve the resource set in this resource-graph data store \n"
+"using job specifications.\n"
 "Traverse the resource graph in a predefined order for resource selection.\n"
 "Currently only support one traversal type: depth-first traversal on the\n"
-"dominant subsystem and up-walk traversal on one or more auxiliary subsystems.\n"
+"dominant subsystem and up-walk traversal on one or more auxiliary \n"
+"subsystems.\n"
 "\n"
 "OPTIONS allow for using a predefined matcher that is configured\n"
 "to use a different set of subsystems as its dominant and/or auxiliary\n"
-"ones to perform matches on.\n"
+"ones to perform the matches on.\n"
 "\n"
-"OPTIONS allow for instantiating a different resource-matching\n"
+"OPTIONS also allow for instantiating a different resource-matching\n"
 "selection policy--e.g., select resources with high or low IDs first.\n"
 "\n"
-"OPTIONS also allow for exporting the filtered graph of the used matcher\n"
+"OPTIONS allow for exporting the filtered graph of the used matcher\n"
 "in a selected graph format at the end of the cli session.\n"
 "\n"
 "To see cli commands, type in \"help\" in the cli: i.e., \n"
@@ -155,7 +90,7 @@ static void usage (int code)
 "\n"
 "OPTIONS:\n"
 "    -h, --help\n"
-"            Display the usage information\n"
+"            Display this usage information\n"
 "\n"
 "    -G, --grug=<genspec>.graphml\n"
 "            GRUG resource graph generator specification file in graphml\n"
@@ -170,11 +105,11 @@ static void usage (int code)
 "                IBBA: InfiniBand Bandwidth-Aware\n"
 "                PFS1BA: Parallel File System 1 Bandwidth-aware\n"
 "                PA: Power-Aware\n"
-"                C+IBA: Containment and InfiniBand connection-Aware\n"
-"                C+PFS1BA: Containment and PFS1 Bandwidth-Aware\n"
-"                C+PA: Containment and Power-Aware\n"
+"                C+IBA: Containment- and InfiniBand connection-Aware\n"
+"                C+PFS1BA: Containment- and PFS1 Bandwidth-Aware\n"
+"                C+PA: Containment- and Power-Aware\n"
 "                IB+IBBA: InfiniBand connection and Bandwidth-Aware\n"
-"                C+P+IBA: Containment, Power and InfiniBand connection-Aware\n"
+"                C+P+IBA: Containment-, Power- and InfiniBand connection-Aware\n"
 "                VA: Virtual Hierarchy-Aware \n"
 "                V+PFS1BA: Virtual Hierarchy and PFS1 Bandwidth-Aware \n"
 "                ALL: Aware of everything.\n"
@@ -189,21 +124,17 @@ static void usage (int code)
 "\n"
 "    -g, --graph-format=<dot|graphml>\n"
 "            Specify the graph format of the output file\n"
-"            (default=dot)\n"
+"            (default=dot).\n"
+"\n"
+"    -e, --elapse-time\n"
+"            Print the elapse time per scheduling operation.\n"
 "\n"
 "    -o, --output=<basename>\n"
 "            Set the basename of the output file\n"
 "            For AT&T Graphviz dot, <basename>.dot\n"
-"            For GraphML, <basename>.graphml\n"
+"            For GraphML, <basename>.graphml.\n"
 "\n";
     exit (code);
-}
-
-static double elapse_time (timeval &st, timeval &et)
-{
-    double ts1 = (double) st.tv_sec + (double) st.tv_usec/1000000.0f;
-    double ts2 = (double) et.tv_sec + (double) et.tv_usec/1000000.0f;
-    return ts2 - ts1;
 }
 
 static dfu_match_cb_t *create_match_cb (const string &policy)
@@ -218,145 +149,6 @@ static dfu_match_cb_t *create_match_cb (const string &policy)
     return matcher;
 }
 
-static int cmd_match (resource_context_t *ctx, vector<string> &args)
-{
-    try {
-        if (args.size () != 3) {
-            cerr << "ERROR: malformed command" << endl;
-            return 0;
-        }
-        string subcmd = args[1];
-        if (!(subcmd == "allocate" || subcmd == "allocate_orelse_reserve")) {
-            cerr << "ERROR: unknown subcmd" << args[1] << endl;
-            return 0;
-        }
-
-        int rc = 0;
-        int64_t at = 0;
-        uint64_t jobid = ctx->jobid_counter;
-        string &fn = args[2];
-        ifstream jspec_in;
-        jspec_in.open (fn);
-        Jobspec job {jspec_in};
-        double elapse = 0.0f;
-        struct timeval st, et;
-
-        gettimeofday (&st, NULL);
-
-        if (args[1] == "allocate")
-            rc = ctx->traverser.run (job, MATCH_ALLOCATE, jobid, &at);
-        else if (args[1] == "allocate_orelse_reserve")
-            rc = ctx->traverser.run (job, MATCH_ALLOCATE_ORELSE_RESERVE, jobid, &at);
-
-        gettimeofday (&et, NULL);
-        elapse = elapse_time (st, et);
-
-        if (rc == 0) {
-            string mode = (at == 0)? "ALLOCATED" : "RESERVED";
-            cout << "INFO:" << " =============================" << endl;
-            cout << "INFO:" << " JOBID=" << jobid << endl;
-            cout << "INFO:" << " RESOURCES=" << mode << endl;
-            cout << "INFO:" << " AT=" << at << endl;
-            cout << "INFO:" << " SELECTED RESOURCE ABOVE" << endl;
-            cout << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
-            cout << "INFO:" << " =============================" << endl;
-            ctx->jobs[jobid] = new job_info_t (jobid, (at != 0), at, fn, elapse);
-            if (at == 0)
-                ctx->allocations[jobid] = jobid;
-            else
-                ctx->reservations[jobid] = jobid;
-            ctx->jobid_counter++;
-        } else if (rc == -1) {
-            cerr << "INFO:" << " =============================" << endl;
-            cerr << "INFO: " << "No matching resources found" << endl;
-            cerr << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
-            cerr << "INFO:" << " =============================" << endl;
-        }
-    } catch (std::exception &e){
-        cerr << "ERROR: " << e.what () << endl;
-    }
-    return 0;
-}
-
-static int cmd_cancel (resource_context_t *ctx, vector<string> &args)
-{
-    cout << "ERROR: " << "Not yet implmented " << endl;
-    return 0;
-}
-
-static int cmd_list (resource_context_t *ctx, vector<string> &args)
-{
-    for (auto &kv: ctx->jobs) {
-        job_info_t *info = kv.second;
-        string mode = (!info->reserved)? "ALLOCATED" : "RESERVED";
-        cout << "INFO: " << info->jobid << ", " << mode << ", "
-             << info->scheduled_at << ", " << info->jobspec_fn << ", "
-             << info->overhead << endl;
-    }
-    return 0;
-}
-
-static int cmd_info (resource_context_t *ctx, vector<string> &args)
-{
-    if (args.size () != 2) {
-        cerr << "ERROR: malformed command" << endl;
-        return 0;
-    }
-    uint64_t jobid = (uint64_t)std::atoll(args[1].c_str ());
-    if (ctx->jobs.find (jobid) == ctx->jobs.end ()) {
-       cout << "ERROR: jobid doesn't exist: " << args[1] << endl;
-       return 0;
-    }
-    job_info_t *info = ctx->jobs[jobid];
-    string mode = (!info->reserved)? "ALLOCATED" : "RESERVED";
-    cout << "INFO: " << info->jobid << ", " << mode << ", "
-         << info->scheduled_at << ", " << info->jobspec_fn << ", "
-         << info->overhead << endl;
-    return 0;
-}
-
-static int cmd_cat (resource_context_t *ctx, vector<string> &args)
-{
-    string &jspec_filename = args[1];
-    ifstream jspec_in;
-    jspec_in.open (jspec_filename);
-    string line;
-    while (getline (jspec_in, line))
-        cout << line << endl;
-    cout << "INFO: " << "Jobspec in " << jspec_filename << endl;
-    return 0;
-}
-
-static int cmd_help (resource_context_t *ctx, vector<string> &args)
-{
-    bool multi = true;
-    bool found = false;
-    string cmd = "unknown";
-
-    if (args.size () == 2) {
-        multi = false;
-        cmd = args[1];
-    }
-
-    for (int i = 0; commands[i].name != "NA"; ++i) {
-        if (multi || cmd == commands[i].name || cmd == commands[i].abbr) {
-            cout << "INFO: " << commands[i].name << " (" << commands[i].abbr
-                      << ")" << " -- " << commands[i].note << endl;
-            found = true;
-        }
-    }
-    if (!multi && !found)
-        cout << "ERROR: unknown command: " << cmd << endl;
-
-    return 0;
-}
-
-static int cmd_quit (resource_context_t *ctx, vector<string> &args)
-{
-    cout << "INFO: " << "Bye bye " << endl;
-    return -1;
-}
-
 static void set_default_params (test_params_t &params)
 {
     params.grug = "conf/default";
@@ -364,19 +156,19 @@ static void set_default_params (test_params_t &params)
     params.matcher_policy = "high";
     params.o_fname = "";
     params.o_fext = "dot";
-    params.o_format = GRAPHVIZ_DOT;
+    params.o_format = emit_format_t::GRAPHVIZ_DOT;
+    params.elapse_time = false;
 }
 
 static int string_to_graph_format (string st, emit_format_t &format)
 {
     int rc = 0;
     if (iequals (st, string ("dot")))
-        format = GRAPHVIZ_DOT;
+        format = emit_format_t::GRAPHVIZ_DOT;
     else if (iequals (st, string ("graphml")))
-        format = GRAPH_ML;
+        format = emit_format_t::GRAPH_ML;
     else
         rc = -1;
-
     return rc;
 }
 
@@ -384,16 +176,15 @@ static int graph_format_to_ext (emit_format_t format, string &st)
 {
     int rc = 0;
     switch (format) {
-    case GRAPHVIZ_DOT:
+    case emit_format_t::GRAPHVIZ_DOT:
         st = "dot";
         break;
-    case GRAPH_ML:
+    case emit_format_t::GRAPH_ML:
         st = "graphml";
         break;
     default:
         rc = -1;
     }
-
     return rc;
 }
 
@@ -415,48 +206,39 @@ static int set_subsystems_use (resource_context_t *ctx, string n)
     if (iequals (matcher_type, string ("CA"))) {
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "*");
-    }
-    else if (iequals (matcher_type, string ("IBA"))) {
+    } else if (iequals (matcher_type, string ("IBA"))) {
         if ( (rc = subsystem_exist (ctx, "ibnet")) == 0)
             matcher.add_subsystem ("ibnet", "*");
-    }
-    else if (iequals (matcher_type, string ("IBBA"))) {
+    } else if (iequals (matcher_type, string ("IBBA"))) {
         if ( (rc = subsystem_exist (ctx, "ibnetbw")) == 0)
             matcher.add_subsystem ("ibnetbw", "*");
-    }
-    else if (iequals (matcher_type, string ("PFS1BA"))) {
+    } else if (iequals (matcher_type, string ("PFS1BA"))) {
         if ( (rc = subsystem_exist (ctx, "pfs1bw")) == 0)
             matcher.add_subsystem ("pfs1bw", "*");
-    }
-    else if (iequals (matcher_type, string ("PA"))) {
+    } else if (iequals (matcher_type, string ("PA"))) {
         if ( (rc = subsystem_exist (ctx, "power")) == 0)
             matcher.add_subsystem ("power", "*");
-    }
-    else if (iequals (matcher_type, string ("C+PFS1BA"))) {
+    } else if (iequals (matcher_type, string ("C+PFS1BA"))) {
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "contains");
         if ( !rc && (rc = subsystem_exist (ctx, "pfs1bw")) == 0)
             matcher.add_subsystem ("pfs1bw", "*");
-    }
-    else if (iequals (matcher_type, string ("C+IBA"))) {
+    } else if (iequals (matcher_type, string ("C+IBA"))) {
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "contains");
         if ( !rc && (rc = subsystem_exist (ctx, "ibnet")) == 0)
             matcher.add_subsystem ("ibnet", "connected_up");
-    }
-    else if (iequals (matcher_type, string ("C+PA"))) {
+    } else if (iequals (matcher_type, string ("C+PA"))) {
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "*");
         if ( !rc && (rc = subsystem_exist (ctx, "power")) == 0)
             matcher.add_subsystem ("power", "*");
-    }
-    else if (iequals (matcher_type, string ("IB+IBBA"))) {
+    } else if (iequals (matcher_type, string ("IB+IBBA"))) {
         if ( (rc = subsystem_exist (ctx, "ibnet")) == 0)
             matcher.add_subsystem ("ibnet", "connected_down");
         if ( !rc && (rc = subsystem_exist (ctx, "ibnetbw")) == 0)
             matcher.add_subsystem ("ibnetbw", "*");
-    }
-    else if (iequals (matcher_type, string ("C+P+IBA"))) {
+    } else if (iequals (matcher_type, string ("C+P+IBA"))) {
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "contains");
         if ( (rc = subsystem_exist (ctx, "power")) == 0)
@@ -482,13 +264,14 @@ static int set_subsystems_use (resource_context_t *ctx, string n)
             matcher.add_subsystem ("pfs1bw", "*");
         if ( (rc = subsystem_exist (ctx, "power")) == 0)
             matcher.add_subsystem ("power", "*");
-    } else
+    } else {
         rc = -1;
-
+    }
     return rc;
 }
 
-static void write_to_graphviz (f_resource_graph_t &fg, subsystem_t ss, fstream &o)
+static void write_to_graphviz (f_resource_graph_t &fg, subsystem_t ss,
+                               fstream &o)
 {
     f_res_name_map_t vmap = get (&resource_pool_t::name, fg);
     f_edg_infra_map_t emap = get (&resource_relation_t::idata, fg);
@@ -497,43 +280,47 @@ static void write_to_graphviz (f_resource_graph_t &fg, subsystem_t ss, fstream &
     write_graphviz (o, fg, vwr, ewr);
 }
 
+static void flatten (f_resource_graph_t &fg, map<vtx_t, string> &paths,
+                     map<vtx_t, string> &subsystems,
+                     map<edg_t, string> &esubsystems)
+{
+    f_vtx_iterator vi, v_end;
+    f_edg_iterator ei, e_end;
+
+    for (tie (vi, v_end) = vertices (fg); vi != v_end; ++vi) {
+        paths[*vi] = "{";
+        for (auto &kv : fg[*vi].paths) {
+            paths[*vi] += kv.first + ": \"" + kv.second + "\"";
+        }
+        paths[*vi] += "}";
+        subsystems[*vi] = "{";
+        for (auto &kv : fg[*vi].idata.member_of) {
+            subsystems[*vi] += kv.first + ": \"" + kv.second + "\"";
+        }
+        subsystems[*vi] += "}";
+    }
+    for (tie (ei, e_end) = edges (fg); ei != e_end; ++ei) {
+        esubsystems[*ei] = "{";
+        for (auto &kv : fg[*ei].idata.member_of) {
+            esubsystems[*ei] += kv.first + ": \"" + kv.second + "\"";
+        }
+        esubsystems[*ei] += "}";
+    }
+}
+
 static void write_to_graphml (f_resource_graph_t &fg, fstream &o)
 {
     dynamic_properties dp;
-    f_vtx_iterator vi, v_end;
-    f_edg_iterator ei, e_end;
-    map<vtx_t, string> subsystems;
     map<edg_t, string> esubsystems;
-    map<vtx_t, string> properties;
-    map<vtx_t, string> paths;
+    map<vtx_t, string> subsystems, properties, paths;
     associative_property_map<map<vtx_t, string> > subsystems_map (subsystems);
     associative_property_map<map<edg_t, string> > esubsystems_map (esubsystems);
     associative_property_map<map<vtx_t, string> > props_map (properties);
     associative_property_map<map<vtx_t, string> > paths_map (paths);
 
-    for (tie (vi, v_end) = vertices (fg); vi != v_end; ++vi) {
-        paths[*vi] = "{";
-        for (auto &kv : fg[*vi].paths) {
-            paths[*vi] += kv.first + ": \"" + kv.second + "\""; 
-        }
-        paths[*vi] += "}";
+    flatten (fg, paths, subsystems, esubsystems);
 
-        subsystems[*vi] = "{";
-        for (auto &kv : fg[*vi].idata.member_of) {
-            subsystems[*vi] += kv.first + ": \"" + kv.second + "\""; 
-        }
-        subsystems[*vi] += "}";
-    }
-
-    for (tie (ei, e_end) = edges (fg); ei != e_end; ++ei) {
-        esubsystems[*ei] = "{"; 
-        for (auto &kv : fg[*ei].idata.member_of) {
-            esubsystems[*ei] += kv.first + ": \"" + kv.second + "\"";
-        }
-        esubsystems[*ei] += "}"; 
-    }
-
-    // Resource Pool Vertices
+    // Resource pool vertices
     dp.property ("paths", paths_map);
     dp.property ("props", props_map);
     dp.property ("member_of", subsystems_map);
@@ -543,9 +330,9 @@ static void write_to_graphml (f_resource_graph_t &fg, fstream &o)
     dp.property ("id", get (&resource_pool_t::id, fg));
     dp.property ("size", get (&resource_pool_t::size, fg));
     dp.property ("unit", get (&resource_pool_t::unit, fg));
-
-    // Relation Edges
+    // Relation edges
     dp.property ("member_of", esubsystems_map);
+
     write_graphml (o, fg, dp, true);
 }
 
@@ -556,37 +343,32 @@ static void write_to_graph (resource_context_t *ctx)
     mn = ctx->matcher->matcher_name ();
     f_resource_graph_t &fg = *(ctx->resource_graph_views[mn]);
     fn = ctx->params.o_fname + "." + ctx->params.o_fext;
-    o.open (fn, fstream::out);
+
     cout << "INFO: Write the target graph of the matcher..." << endl;
+    o.open (fn, fstream::out);
+
     switch (ctx->params.o_format) {
-    case GRAPHVIZ_DOT:
+    case emit_format_t::GRAPHVIZ_DOT:
         write_to_graphviz (fg, ctx->matcher->dom_subsystem (), o);
         break;
-    case GRAPH_ML:
+    case emit_format_t::GRAPH_ML:
         write_to_graphml (fg, o);
         break;
     default:
-        cout << "ERROR: Graph format is not yet implemented:" << endl;
+        cout << "ERROR: Unknown graph format" << endl;
         break;
+    }
+    if (o.bad ()) {
+        cerr << "ERROR: Failure encountered in writing" << endl;
+        o.clear ();
     }
     o.close ();
 }
 
-static cmd_func_f *find_cmd (const string &cmd_str)
-{
-    for (int i = 0; commands[i].name != "NA"; ++i) {
-        if (cmd_str == commands[i].name)
-            return commands[i].cmd;
-        else if (cmd_str == commands[i].abbr)
-            return commands[i].cmd;
-    }
-    return (cmd_func_f *)NULL;
-}
-
-void control_loop (resource_context_t *ctx)
+static void control_loop (resource_context_t *ctx)
 {
     cmd_func_f *cmd = NULL;
-    while(1) {
+    while (1) {
         char *line = readline("resource-query> ");
         if (line == NULL)
             continue;
@@ -602,20 +384,26 @@ void control_loop (resource_context_t *ctx)
             continue;
 
         string &cmd_str = tokens[0];
-        cmd = find_cmd (cmd_str);
-        if (!cmd)
+        if (!(cmd = find_cmd (cmd_str)))
             continue;
         if (cmd (ctx, tokens) != 0)
             break;
     }
+}
 
-    return;
+static void subtree_plan_types (set<string> &aut)
+{
+    // scheduler-driven aggregate-updates optimization is configured with
+    // the following resource types.
+    aut.insert ("node");
+    aut.insert ("core");
+    aut.insert ("gpu");
+    aut.insert ("memory");
 }
 
 int main (int argc, char *argv[])
 {
-    int rc;
-    int ch;
+    int rc, ch;
     resource_context_t *ctx = new resource_context_t ();
     set_default_params (ctx->params);
 
@@ -637,7 +425,7 @@ int main (int argc, char *argv[])
             case 'g': /* --graph-format */
                 rc = string_to_graph_format (optarg, ctx->params.o_format);
                 if ( rc != 0) {
-                    cerr << "[ERROR] unknown output format for --graph-format: ";
+                    cerr << "[ERROR] unknown format for --graph-format: ";
                     cerr << optarg << endl;
                     usage (1);
                 }
@@ -645,6 +433,9 @@ int main (int argc, char *argv[])
                 break;
             case 'o': /* --output */
                 ctx->params.o_fname = optarg;
+                break;
+            case 'e': /* --elapse-time */
+                ctx->params.elapse_time = true;
                 break;
             default:
                 usage (1);
@@ -656,8 +447,7 @@ int main (int argc, char *argv[])
         usage (1);
 
     // Create matcher and traverser objects
-    ctx->matcher = create_match_cb (ctx->params.matcher_policy);
-    if (ctx->matcher == NULL) {
+    if (!(ctx->matcher = create_match_cb (ctx->params.matcher_policy))) {
         cerr << "ERROR: unknown match policy " << endl;
         cerr << "ERROR: " << ctx->params.matcher_policy << endl;
         return EXIT_FAILURE;
@@ -684,23 +474,15 @@ int main (int argc, char *argv[])
 
     subsystem_selector_t<vtx_t, f_vtx_infra_map_t> vtxsel (vmap, filter);
     subsystem_selector_t<edg_t, f_edg_infra_map_t> edgsel (emap, filter);
-
     f_resource_graph_t *fg = new f_resource_graph_t (g, edgsel, vtxsel);
     ctx->resource_graph_views[ctx->params.matcher_name] = fg;
     ctx->jobid_counter = 1;
-
     const string &dom = ctx->matcher->dom_subsystem ();
-    auto &aggr_update_types = ctx->matcher->sdau_resource_types[dom];
-
-    // scheduler-driven aggregate-updates optimization is configured with
-    // the following resource types.
-    aggr_update_types.insert ("node");
-    aggr_update_types.insert ("core");
-    aggr_update_types.insert ("gpu");
-    aggr_update_types.insert ("memory");
+    subtree_plan_types (ctx->matcher->sdau_resource_types[dom]);
 
     ctx->traverser.initialize (fg, &(ctx->db.roots), ctx->matcher);
 
+    // Command line begins
     control_loop (ctx);
 
     // Output the filtered resource graph

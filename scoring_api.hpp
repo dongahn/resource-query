@@ -36,19 +36,48 @@
 #include <boost/icl/interval_set.hpp>
 #include "resource_graph.hpp"
 
+namespace Flux {
 namespace resource_model {
 
 struct eval_edg_t {
-    eval_edg_t (int64_t s, int64_t c, int64_t n, int x, edg_t e)
-        : score (s), count (c), needs (n), exclusive (x), edge (e) { }
-    eval_edg_t (int64_t s, int64_t c, int64_t n, int x, bool r)
-        : score (s), count (c), needs (n), exclusive (x), root (r) { }
-    int64_t score = -1;
+    eval_edg_t (int64_t c, int64_t n, int x, edg_t e)
+        : count (c), needs (n), exclusive (x), edge (e) { }
+    eval_edg_t (int64_t c, int64_t n, int x)
+        : count (c), needs (n), exclusive (x) { }
     unsigned int count = 0;
     unsigned int needs = 0;
     unsigned int exclusive = 0;
     edg_t edge;
+};
+
+struct eval_egroup_t {
+    eval_egroup_t () { }
+    eval_egroup_t (const eval_egroup_t &o)
+    {
+        score = o.score;
+        count = o.count;
+        needs = o.needs;
+        exclusive = o.exclusive;
+        root = o.root;
+        edges = o.edges;
+    }
+    eval_egroup_t &operator= (const eval_egroup_t &o)
+    {
+        score = o.score;
+        count = o.count;
+        needs = o.needs;
+        exclusive = o.exclusive;
+        root = o.root;
+        edges = o.edges;
+        return *this;
+    }
+
+    int64_t score = -1;
+    unsigned int count = 0;
+    unsigned int needs = 0;
+    unsigned int exclusive = 0;
     bool root = false;
+    std::vector<eval_edg_t> edges;
 };
 
 namespace detail {
@@ -61,7 +90,7 @@ public:
         : m_resrc_type (res_type) { }
     evals_t (const evals_t &o)
     {
-        m_eval_edges = o.m_eval_edges;
+        m_eval_egroups = o.m_eval_egroups;
         m_resrc_type = o.m_resrc_type;
         m_cutline = o.m_cutline;
         m_qual_count = o.m_qual_count;
@@ -71,11 +100,11 @@ public:
     }
     ~evals_t ()
     {
-        m_eval_edges.clear ();
+        m_eval_egroups.clear ();
     }
     evals_t &operator= (const evals_t &o)
     {
-        m_eval_edges = o.m_eval_edges;
+        m_eval_egroups = o.m_eval_egroups;
         m_resrc_type = o.m_resrc_type;
         m_cutline = o.m_cutline;
         m_qual_count = o.m_qual_count;
@@ -85,29 +114,18 @@ public:
         return *this;
     }
 
-    unsigned int add (int64_t score, unsigned int cnt, int exc, edg_t e)
+    unsigned int add (const eval_egroup_t &eg)
     {
-        m_total_count += cnt;
-        if (score > m_cutline)
-            m_qual_count += cnt;
-
-        m_eval_edges.push_back (eval_edg_t (score, cnt, 0, exc, e));
+        m_total_count += eg.count;
+        if (eg.score > m_cutline)
+            m_qual_count += eg.count;
+        m_eval_egroups.push_back (eg);
         return m_qual_count;
     }
 
-    unsigned int add (int64_t score, unsigned int cnt, int exc, bool b)
+    const eval_egroup_t &at (unsigned int i) const
     {
-        m_total_count += cnt;
-        if (score > m_cutline)
-            m_qual_count += cnt;
-
-        m_eval_edges.push_back (eval_edg_t (score, cnt, 0, exc, b));
-        return m_qual_count;
-    }
-
-    const eval_edg_t &at (unsigned int i) const
-    {
-        return m_eval_edges.at (i);
+        return m_eval_egroups.at (i);
     }
 
     unsigned int qualified_count () const
@@ -143,14 +161,14 @@ public:
         int i = 0;
         int old = (int)m_best_k;
         int to_be_selected = k;
-        std::sort (m_eval_edges.begin (), m_eval_edges.end (), comp);
+        std::sort (m_eval_egroups.begin (), m_eval_egroups.end (), comp);
         while (to_be_selected > 0) {
-            if (to_be_selected <= m_eval_edges[i].count)
-                m_eval_edges[i].needs = to_be_selected;
+            if (to_be_selected <= m_eval_egroups[i].count)
+                m_eval_egroups[i].needs = to_be_selected;
             else
-                m_eval_edges[i].needs = m_eval_edges[i].count;
+                m_eval_egroups[i].needs = m_eval_egroups[i].count;
 
-            to_be_selected -= m_eval_edges[i].count;
+            to_be_selected -= m_eval_egroups[i].count;
             i++;
         }
         m_best_k = k;
@@ -167,15 +185,15 @@ public:
         }
         int64_t score_accum = init;
         for (int i = 0; i < m_best_i; i++)
-            score_accum = accum (score_accum, m_eval_edges[i]);
+            score_accum = accum (score_accum, m_eval_egroups[i]);
         return score_accum;
     }
 
     template<class output_it, class unary_op>
     output_it transform (output_it o_it, unary_op uop)
     {
-        return std::transform (m_eval_edges.begin (),
-                               m_eval_edges.end (),
+        return std::transform (m_eval_egroups.begin (),
+                               m_eval_egroups.end (),
                                o_it, uop);
     }
 
@@ -198,13 +216,20 @@ public:
         m_qual_count += o.m_qual_count;
         m_total_count += o.m_total_count;
         m_cutline = o.m_cutline;
-        m_eval_edges.insert (m_eval_edges.end (), o.m_eval_edges.begin (),
-                             o.m_eval_edges.end ());
+        m_eval_egroups.insert (m_eval_egroups.end (), o.m_eval_egroups.begin (),
+                               o.m_eval_egroups.end ());
         return 0;
     }
 
+    void rewind_iter_cur ()
+    {
+        iter_cur = m_eval_egroups.begin ();
+    }
+
+    std::vector<eval_egroup_t>::iterator iter_cur;
+
 private:
-    std::vector<eval_edg_t> m_eval_edges;
+    std::vector<eval_egroup_t> m_eval_egroups;
     std::string m_resrc_type;
     int64_t m_cutline = 0;
     unsigned int m_qual_count = 0;
@@ -216,21 +241,21 @@ private:
 
 namespace fold {
 struct greater {
-    bool operator() (const eval_edg_t &a, const eval_edg_t &b) const
+    bool operator() (const eval_egroup_t &a, const eval_egroup_t &b) const
     {
         return a.score > b.score;
     }
 };
 
 struct less {
-    bool operator() (const eval_edg_t &a, const eval_edg_t &b) const
+    bool operator() (const eval_egroup_t &a, const eval_egroup_t &b) const
     {
         return a.score < b.score;
     }
 };
 
 struct interval_greater {
-    bool operator() (const eval_edg_t &a, const eval_edg_t &b) const
+    bool operator() (const eval_egroup_t &a, const eval_egroup_t &b) const
     {
         return *(ivset.find (a.score)) > *(ivset.find (b.score));
     }
@@ -238,7 +263,7 @@ struct interval_greater {
 };
 
 struct interval_less {
-    bool operator() (const eval_edg_t &a, const eval_edg_t &b) const
+    bool operator() (const eval_egroup_t &a, const eval_egroup_t &b) const
     {
         return *(ivset.find (a.score)) < *(ivset.find (b.score));
     }
@@ -247,13 +272,13 @@ struct interval_less {
 
 struct plus {
     const int64_t operator() (const int64_t result,
-                              const eval_edg_t &a) const
+                              const eval_egroup_t &a) const
     {
         return result + a.score;
     }
 };
-boost::icl::interval_set<int64_t>::interval_type to_interval (
-                                                     const eval_edg_t &ev)
+inline boost::icl::interval_set<int64_t>::interval_type to_interval (
+                                                     const eval_egroup_t &ev)
 {
     using namespace boost::icl;
     int64_t tmp = ev.score;
@@ -326,24 +351,37 @@ public:
         return res_evals->set_cutline (c);
     }
 
-    int add (const subsystem_t &s, const std::string &r,
-             int64_t score, unsigned int count, int x, edg_t e)
+    void rewind_iter_cur (const subsystem_t &s, const std::string &r)
     {
         handle_new_keys (s, r);
         auto res_evals = (*m_ssys_map[s])[r];
-        return res_evals->add (score, count, x, e);
+        return res_evals->rewind_iter_cur ();
     }
 
-    int add (const subsystem_t &s, const std::string &r,
-             int64_t score, unsigned int count, int x, bool b)
+    std::vector<eval_egroup_t>::iterator iter_cur (const subsystem_t &s,
+                                                   const std::string &r)
     {
         handle_new_keys (s, r);
         auto res_evals = (*m_ssys_map[s])[r];
-        return res_evals->add (score, count, x, b);
+        return res_evals->iter_cur;
+    }
+
+    void incr_iter_cur (const subsystem_t &s, const std::string &r)
+    {
+        handle_new_keys (s, r);
+        auto res_evals = (*m_ssys_map[s])[r];
+        res_evals->iter_cur++;
+    }
+
+    int add (const subsystem_t &s, const std::string &r, const eval_egroup_t &eg)
+    {
+        handle_new_keys (s, r);
+        auto res_evals = (*m_ssys_map[s])[r];
+        return res_evals->add (eg);
     }
 
     //! Can throw an out_of_range exception
-    const eval_edg_t &at (const subsystem_t &s, const std::string &r,
+    const eval_egroup_t &at (const subsystem_t &s, const std::string &r,
               unsigned int i)
     {
         handle_new_keys (s, r);
@@ -498,7 +536,9 @@ private:
     int64_t m_overall_score = -1;
     unsigned int m_avail = 0;
 };
-}
+
+} // namespace resource_model
+} // namespace Flux
 
 #endif // SCORING_API_HPP
 

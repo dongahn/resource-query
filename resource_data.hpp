@@ -26,8 +26,10 @@
 #include <uuid/uuid.h>
 #include <string>
 #include <map>
+#include <set>
 #include "planner/planner.h"
 
+namespace Flux {
 namespace resource_model {
 
 typedef std::string subsystem_t;
@@ -42,31 +44,31 @@ struct color_t {
         NEW_BASE = 3
     };
 
-    uint64_t reset (uint64_t color_base)
+    uint64_t reset (uint64_t color_base) const
     {
         return color_base + (uint64_t)NEW_BASE;
     }
-    bool white (uint64_t c, uint64_t color_base)
+    bool white (uint64_t c, uint64_t color_base) const
     {
         return c <= (color_base + (uint64_t)WHITE_OFFSET);
     }
-    uint64_t white (uint64_t color_base)
+    uint64_t white (uint64_t color_base) const
     {
         return color_base + (uint64_t)WHITE_OFFSET;
     }
-    bool gray (uint64_t c, uint64_t color_base)
+    bool gray (uint64_t c, uint64_t color_base) const
     {
         return c == (color_base + (uint64_t)GRAY_OFFSET);
     }
-    uint64_t gray (uint64_t color_base)
+    uint64_t gray (uint64_t color_base) const
     {
         return color_base + (uint64_t)GRAY_OFFSET;
     }
-    bool black (uint64_t c, uint64_t color_base)
+    bool black (uint64_t c, uint64_t color_base) const
     {
         return c == (color_base + (uint64_t)BLACK_OFFSET);
     }
-    uint64_t black (uint64_t color_base)
+    uint64_t black (uint64_t color_base) const
     {
         return color_base + (uint64_t)BLACK_OFFSET;
     }
@@ -279,6 +281,7 @@ struct resource_relation_t {
 };
 
 } // namespace resource_model
+} // namespace Flux
 
 #endif // RESOURCE_DATA_HPP
 

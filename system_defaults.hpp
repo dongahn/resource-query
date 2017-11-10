@@ -25,11 +25,13 @@
 #ifndef SYSTEM_DEFAULT_HPP
 #define SYSTEM_DEFAULT_HPP
 
+namespace Flux {
 namespace resource_model {
 namespace detail {
     const uint64_t SYSTEM_DEFAULT_DURATION = 43200;
 } // namespace detail
 } // namespace resource_model
+} // namespace Flux
 
 #endif // SYSTEM_DEFAULT_HPP
 

@@ -1,0 +1,112 @@
+# 100x node[1]->slot[1]->socket[2]->core[1]:gpu[1]:memory[6]
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+match allocate_orelse_reserve ../data/jobspecs/test002.node1.slot1.socket2.core5-gpu1-memory6.yaml
+
+quit

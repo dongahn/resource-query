@@ -414,3 +414,5 @@ browser. NOTE for LLNL developers: It doesn't build on TOSS2 systems
 because their compilers are old. Please use a TOSS3 machine or your
 own laptop (e.g. Mac OSX)
 
+## How to Use Scoring API to Effect Your Resource Selection Policy
+TBD

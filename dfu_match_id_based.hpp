@@ -1,4 +1,3 @@
-
 /*****************************************************************************\
  *  Copyright (c) 2014 Lawrence Livermore National Security, LLC.  Produced at
  *  the Lawrence Livermore National Laboratory (cf, AUTHORS, DISCLAIMER.LLNS).
@@ -35,6 +34,7 @@
 #include "dfu_match_cb.hpp"
 #include "jobspec.hpp"
 
+namespace Flux {
 namespace resource_model {
 
 /* High ID first policy: select resources of each type
@@ -54,7 +54,7 @@ public:
     ~high_first_t () { }
 
     int dom_finish_graph (const subsystem_t &subsystem,
-                          const std::vector<Resource> &resources,
+                          const std::vector<Flux::Jobspec::Resource> &resources,
                           const f_resource_graph_t &g, scoring_api_t &dfu)
     {
         int64_t score = MATCH_MET;
@@ -72,11 +72,21 @@ public:
         return (score == MATCH_MET)? 0 : -1;
     }
 
+    int dom_finish_slot (const subsystem_t &subsystem, scoring_api_t &dfu)
+    {
+        std::vector<std::string> types;
+        dfu.resrc_types (subsystem, types);
+        for (auto &type : types)
+            dfu.choose_accum_all (subsystem, type);
+        return 0;
+    }
+
     int dom_finish_vtx (vtx_t u, const subsystem_t &subsystem,
-                        const std::vector<Resource> &resources,
+                        const std::vector<Flux::Jobspec::Resource> &resources,
                         const f_resource_graph_t &g, scoring_api_t &dfu)
     {
         int64_t score = MATCH_MET;
+        int64_t overall;
 
         for (auto &resource : resources) {
             if (resource.type != g[u].type)
@@ -97,13 +107,12 @@ public:
         }
 
         // high id first policy (just a demo policy)
-        int64_t overall = (score == MATCH_MET)? (score + g[u].id + 1) : score;
+        overall = (score == MATCH_MET)? (score + g[u].id + 1) : score;
         dfu.set_overall_score (overall);
         decr ();
         return (score == MATCH_MET)? 0 : -1;
     }
-};
-
+}; // the end of class high_first_t
 
 /*! Low ID first policy: select resources of each type
  *  with lower numeric IDs.
@@ -122,7 +131,7 @@ public:
     ~low_first_t () { }
 
     int dom_finish_graph (const subsystem_t &subsystem,
-                          const std::vector<Resource> &resources,
+                          const std::vector<Flux::Jobspec::Resource> &resources,
                           const f_resource_graph_t &g, scoring_api_t &dfu)
     {
         int64_t score = MATCH_MET;
@@ -142,10 +151,11 @@ public:
     }
 
     int dom_finish_vtx (vtx_t u, const subsystem_t &subsystem,
-                        const std::vector<Resource> &resources,
+                        const std::vector<Flux::Jobspec::Resource> &resources,
                         const f_resource_graph_t &g, scoring_api_t &dfu)
     {
         int64_t score = MATCH_MET;
+        int64_t overall;
         // this comparator overrides default and prefer the lower id
         fold::less comp;
 
@@ -168,12 +178,42 @@ public:
         }
 
         // high id first policy (just a demo policy)
-        int64_t overall = (score == MATCH_MET)? (score + g[u].id + 1) : score;
+        overall = (score == MATCH_MET)? (score + g[u].id + 1) : score;
         dfu.set_overall_score (overall);
         decr ();
         return (score == MATCH_MET)? 0 : -1;
     }
-};
+
+    int dom_finish_slot (const subsystem_t &subsystem,
+                         const std::vector<Flux::Jobspec::Resource> &resources,
+                         const f_resource_graph_t &g, scoring_api_t &dfu)
+    {
+        int64_t score = MATCH_MET;
+
+        for (auto &resource : resources) {
+            if (resource.type != "slot")
+                continue;
+
+            // jobspec resource type matches with slot
+            for (auto &c_resource : resource.with) {
+                // test children resource count requirements
+                const std::string &c_type = c_resource.type;
+                unsigned int qc = dfu.qualified_count (subsystem, c_type);
+                unsigned int count = select_count (c_resource, qc);
+                if (count == 0) {
+                    score = MATCH_UNMET;
+                    break;
+                }
+                score = dfu.choose_accum_best_k (subsystem,
+                                                 c_resource.type, count);
+            }
+        }
+
+        dfu.set_overall_score (score);
+        decr ();
+        return (score > MATCH_MET)? 0 : -1;
+    }
+}; // the end of class low_first_t
 
 /*! Locality-aware policy: select resources of each type
  *  where you have more qualified.
@@ -194,7 +234,7 @@ public:
     ~greater_interval_first_t () { }
 
     int dom_finish_graph (const subsystem_t &subsystem,
-                          const std::vector<Resource> &resources,
+                          const std::vector<Flux::Jobspec::Resource> &resources,
                           const f_resource_graph_t &g, scoring_api_t &dfu)
     {
         using namespace boost;
@@ -220,12 +260,13 @@ public:
     }
 
     int dom_finish_vtx (vtx_t u, const subsystem_t &subsystem,
-                        const std::vector<Resource> &resources,
+                        const std::vector<Flux::Jobspec::Resource> &resources,
                         const f_resource_graph_t &g, scoring_api_t &dfu)
     {
         using namespace boost;
         using namespace boost::icl;
         int score = MATCH_MET;
+        int64_t overall;
         fold::interval_greater comp;
 
         for (auto &resource : resources) {
@@ -247,13 +288,48 @@ public:
             }
         }
 
-        int64_t overall = (score == MATCH_MET)? (score + g[u].id + 1) : score;
+        if (score == MATCH_MET)
+            overall = (score + g[u].id + 1);
+        else
+            overall = score;
         dfu.set_overall_score (overall);
         decr ();
         return (score == MATCH_MET)? 0 : -1;
     }
-};
+
+    int dom_finish_slot (const subsystem_t &subsystem,
+                         const std::vector<Flux::Jobspec::Resource> &resources,
+                         const f_resource_graph_t &g, scoring_api_t &dfu)
+    {
+        int64_t score = MATCH_MET;
+
+        for (auto &resource : resources) {
+            if (resource.type != "slot")
+                continue;
+
+            // jobspec resource type matches with slot
+            for (auto &c_resource : resource.with) {
+                // test children resource count requirements
+                const std::string &c_type = c_resource.type;
+                unsigned int qc = dfu.qualified_count (subsystem, c_type);
+                unsigned int count = select_count (c_resource, qc);
+                if (count == 0) {
+                    score = MATCH_UNMET;
+                    break;
+                }
+                score = dfu.choose_accum_best_k (subsystem,
+                                                 c_resource.type, count);
+            }
+        }
+
+        dfu.set_overall_score (score);
+        decr ();
+        return (score > MATCH_MET)? 0 : -1;
+    }
+}; // the end of class greater_interval_first_t
+
 } // namespace resource_model
+} // namespace Flux
 
 #endif // DFU_MATCH_ID_BASED_HPP
 

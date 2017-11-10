@@ -3,18 +3,19 @@ resources:
   - type: node
     count: 1
     with:
-      - type: socket
-        count: 2
+      - type: slot
+        count: 1
+        label: default
         with:
-          - type: core
-            count: 5
-            exclusive: true
-          - type: gpu
-            count: 1
-            exclusive: true
-          - type: memory 
-            count: 6
-            exclusive: true
+          - type: socket
+            count: 2
+            with:
+              - type: core
+                count: 5
+              - type: gpu
+                count: 1
+              - type: memory 
+                count: 6
 
 # a comment
 attributes:
@@ -22,7 +23,6 @@ attributes:
     duration: 3600
 tasks:
   - command: app
-    slot:
-      type: socket
+    slot: default
     count:
       per_slot: 1

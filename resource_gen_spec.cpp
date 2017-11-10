@@ -31,7 +31,7 @@
 
 using namespace std;
 using namespace boost;
-using namespace resource_model;
+using namespace Flux::resource_model;
 
 struct str2enum_t
 {
@@ -127,8 +127,8 @@ const gg_t &resource_gen_spec_t::gen_graph ()
 
 /*! Return gen_meth_t enum value corresponding to the string passed in.
  *
- *  \param s    gen_method string from graphml spec
- *  \return     0 on success; -1 otherwise
+ *  \param s             gen_method string from graphml spec
+ *  \return              0 on success; -1 otherwise
  */
 const gen_meth_t resource_gen_spec_t::to_gen_method_t (const std::string &s) const
 {
@@ -141,8 +141,8 @@ const gen_meth_t resource_gen_spec_t::to_gen_method_t (const std::string &s) con
 
 /*! Load resource generator recipe graph from a graphml file
  *
- *  \param ifn    resource generator recipe file in graphml
- *  \return       0 on success; -1 otherwise
+ *  \param ifn           resource generator recipe file in graphml
+ *  \return              0 on success; -1 otherwise
  */
 int resource_gen_spec_t::read_graphml (const string &ifn)
 {
@@ -160,9 +160,9 @@ int resource_gen_spec_t::read_graphml (const string &ifn)
 
 /*! Write the resource generator recipe graph in Graphviz dot format
  *
- * \param ofn    output file name
- * \param simple if false, output will have more detailed info
- * \return       0 on success; -1 otherwise
+ * \param ofn            output file name
+ * \param simple         if false, output will have more detailed info
+ * \return               0 on success; -1 otherwise
  */
 int resource_gen_spec_t::write_graphviz (const string &ofn, bool simple)
 {

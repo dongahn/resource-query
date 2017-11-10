@@ -33,6 +33,7 @@
 #include "jobspec.hpp"
 #include "planner/planner.h"
 
+namespace Flux {
 namespace resource_model {
 
 enum match_score_t {
@@ -40,16 +41,16 @@ enum match_score_t {
     MATCH_MET = 1
 };
 
-enum match_op_t {
+enum class match_op_t {
     MATCH_ALLOCATE,
     MATCH_ALLOCATE_ORELSE_RESERVE
 };
 
 /*! Base matcher data class.
- *  Provides idioms to specify the target subsystems and
- *  resource relationship types which then allow resource
- *  module to filter the graph data store for the match
- *  callback object
+ *  Provide idioms to specify the target subsystems and
+ *  resource relationship types which then allow resource-query
+ *  or later resource module to filter the graph data store
+ *  for the match callback object.
  */
 class matcher_data_t
 {
@@ -78,20 +79,20 @@ public:
         m_subsystems_map.clear ();
     }
 
-    /*! Add a subsystem and the relationship type that this resource base matcher
-     *  will use. Vertices and edges of the resource graph are filtered in based
-     *  on this information. Each vertex and edge that is a part of this subsystem
-     *  and relationship type will be selected.
+    /*! Add a subsystem and the relationship type that this resource base
+     *  matcher will use. Vertices and edges of the resource graph are
+     *  filtered in based on this information. Each vertex and edge that
+     *  is a part of this subsystem and relationship type will be selected.
      *
-     *  This method must be called at least once to set the dominant subsystem
-     *  to use. This method can be called multiple times with a distinct subsystem,
-     *  each becomes an auxiliary subsystem. The queuing order can be reconstructed
-     *  get_subsystems.
+     *  This method must be called at least once to set the dominant
+     *  subsystem to use. This method can be called multiple times with
+     *  a distinct subsystem, each becomes an auxiliary subsystem.
+     *  The queuing order can be reconstructed get_subsystems.
      *
-     *  \param s     a subsystem to select
-     *  \param tf    edge (or relation type) to select. pass * for selecting all types
-     *  \param m     matcher_t
-     *  \return      0 on success; -1 on an error
+     *  \param subsystem subsystem to select
+     *  \param tf        edge (or relation type) to select.
+     *                   pass * for selecting all types
+     *  \return          0 on success; -1 on error
      */
     int add_subsystem (const subsystem_t s, const std::string tf = "*")
     {
@@ -102,7 +103,7 @@ public:
         }
         return -1;
     }
-    const std::string &matcher_name ()
+    const std::string &matcher_name () const
     {
         return m_name;
     }
@@ -116,7 +117,8 @@ public:
     }
 
     /*
-     * \return      return the dominant subsystem this matcher has selected to use
+     * \return           return the dominant subsystem this matcher has
+     *                   selected to use.
      */
     const subsystem_t &dom_subsystem () const
     {
@@ -124,7 +126,8 @@ public:
     }
 
     /*
-     * \return      return the subsystem selector to be used for graph filtering
+     * \return           return the subsystem selector to be used for
+     *                   graph filtering.
      */
     const multi_subsystemsS &subsystemsS () const
     {
@@ -133,7 +136,7 @@ public:
 
     std::map<subsystem_t, std::set<std::string> > sdau_resource_types;
 
-    unsigned int select_count (const Resource &resource,
+    unsigned int select_count (const Flux::Jobspec::Resource &resource,
                                unsigned int qc) const
     {
         unsigned int count = resource.count.max;
@@ -179,7 +182,10 @@ private:
     std::vector<subsystem_t> m_subsystems;
     multi_subsystemsS m_subsystems_map;
 };
-}
+
+} // namespace resource_model
+} // namespace Flux
+
 #endif // MATCHER_DATA_HPP
 
 /*

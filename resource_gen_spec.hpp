@@ -31,6 +31,7 @@
 #include <boost/graph/graphml.hpp>
 #include <boost/filesystem.hpp>
 
+namespace Flux {
 namespace resource_model {
 
 using namespace boost;
@@ -106,6 +107,7 @@ private:
 };
 
 } // namespace resource_model
+} // namespace Flux
 
 #endif // RESOURCE_GEN_SPEC_HPP
 

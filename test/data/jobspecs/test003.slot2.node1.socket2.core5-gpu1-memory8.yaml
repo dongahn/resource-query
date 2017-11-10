@@ -1,7 +1,7 @@
 version: 1
 resources:
   - type: slot
-    count: 4
+    count: 2
     label: default
     with:
       - type: node
@@ -14,16 +14,15 @@ resources:
                 count: 5
               - type: gpu
                 count: 1
-              - type: memory 
+              - type: memory
                 count: 6
-    
+
 # a comment
 attributes:
   system:
     duration: 3600
 tasks:
   - command: app
-    slot:
-      type: node
+    slot: default
     count:
       per_slot: 1

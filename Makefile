@@ -1,10 +1,14 @@
-CPP           := g++ #clang++
+CPP           := g++
 BOOST_LDFLAGS := -L/usr/local/lib \
-	         -lboost_system -lboost_filesystem -lboost_graph -lyaml-cpp -lreadline
+	             -lboost_system -lboost_filesystem -lboost_graph \
+                 -lyaml-cpp -lreadline
 LDFLAGS       := -O0 -g $(BOOST_LDFLAGS) -L./planner -lplanner -lczmq -lzmq
 CPPFLAGS      := -O0 -g -std=c++11 -MMD -MP
 INCLUDES      := -I/usr/include -I/usr/local/include
 OBJS          := resource-query.o \
+                 command.o \
+                 dfu_traverse.o \
+                 dfu_traverse_impl.o \
                  grug2dot.o \
                  resource_gen.o \
                  resource_gen_spec.o \
@@ -28,7 +32,7 @@ all: $(TARGETS)
 
 graphs: $(GRAPHS) 
 
-resource-query: resource-query.o resource_gen.o resource_gen_spec.o jobspec.o
+resource-query: resource-query.o command.o dfu_traverse.o dfu_traverse_impl.o resource_gen.o resource_gen_spec.o jobspec.o
 	$(CPP) $^ -o $@ $(LDFLAGS)
 
 grug2dot: grug2dot.o resource_gen_spec.o
@@ -43,7 +47,6 @@ planner:
 .PHONY: clean planner
 
 clean:
-	cd planner && make clean && \
-	rm -f $(OBJS) $(DEPS) esource-query grug2dot *~ *.dot *.svg
+	rm -f $(OBJS) $(DEPS) && cd planner && make clean && rm -f $(OBJS) $(DEPS) esource-query grug2dot *~ *.dot *.svg
 
 -include $(DEPS)
