@@ -14,9 +14,9 @@ resources:
                 count: 5
               - type: gpu
                 count: 1
-              - type: memory 
+              - type: memory
                 count: 6
-    
+
 # a comment
 attributes:
   system:
