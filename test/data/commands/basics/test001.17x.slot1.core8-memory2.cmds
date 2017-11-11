@@ -1,0 +1,19 @@
+# 17x slot[1]->core[8]:memory[2]
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+match allocate ../data/jobspecs/basics/test004.slot1.core8-memory2
+quit

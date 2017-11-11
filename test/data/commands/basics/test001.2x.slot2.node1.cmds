@@ -1,0 +1,4 @@
+# 2x slot[1]->node[1]->socket[2]->core[5]:gpu[1]:memory[6]
+match allocate ../data/jobspecs/basics/test003.slot2.node1.socket2.core5-gpu1-memory8.yaml
+match allocate ../data/jobspecs/basics/test003.slot2.node1.socket2.core5-gpu1-memory8.yaml
+quit
