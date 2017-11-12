@@ -12,7 +12,7 @@ query="${SHARNESS_TEST_SRCDIR}/../resource-query"
 #
 # Selection Policy -- High ID first (-P high)
 #     The resource vertex with higher ID is preferred among its kind
-#     (e.g., node0 is preferred over node1 if available)
+#     (e.g., node1 is preferred over node0 if available)
 #
 
 cmds001="${cmd_dir}/test001.4x.cmds"
@@ -75,7 +75,7 @@ test_expect_success "${test008_desc}" '
 #
 # Selection Policy -- Low ID first (-P low)
 #     The resource vertex with lower ID is preferred among its kind
-#     (e.g., node1 is preferred over node0 if available)
+#     (e.g., node0 is preferred over node1 if available)
 #
 
 cmds009="${cmd_dir}/test001.4x.cmds"
