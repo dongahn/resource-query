@@ -1,8 +1,8 @@
 ## Resource Query Utility
 
 `resource-query` is a command-line utility that takes in a HPC resource request
-written in Flux's Canonical Job Specification (RFC 14) and selects the best-
-matching compute and other resources in accordance with a selection policy.
+written in Flux's Canonical Job Specification (RFC 14) and selects the best-matching
+compute and other resources in accordance with a selection policy.
 
 The goal of this utility is largely three-fold. First, as we are actively
 developing a scalable batch-job scheduling infrastructure within Flux,
