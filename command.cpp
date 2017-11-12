@@ -126,8 +126,10 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
         elapse = get_elapse_time (st, et);
         print_schedule_info (ctx, jobid, jobspec_fn, (rc == 0), at, elapse);
 
-    } catch (std::ifstream::failure &e) {
+    } catch (ifstream::failure &e) {
         cerr << "ERROR: Exception occurs for input file I/O" << e.what () << endl;
+    } catch (parse_error &e) {
+        cerr << "ERROR: Jobspec parse error" << e.what () << endl;
     }
     return 0;
 }
