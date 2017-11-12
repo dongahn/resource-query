@@ -1,0 +1,10 @@
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.node1.slot1.socket2.c16-g1-m32.yaml
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.node1.socket2.slot1.c16-g1-m32.yaml
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.node2.slot1.socket2.c16-g1-m32.yaml
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.node2.socket2.slot1.c16-g1-m32.yaml
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.node4.slot1.socket2.c16-g1-m32.yaml
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.node4.socket2.slot1.c16-g1-m32.yaml
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.slot1.node1.socket2.c16-g1-m32.yaml
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.slot2.node1.socket2.c16-g1-m32.yaml
+match allocate ../data/jobspecs/full-vs-partial/test002.rack1.slot4.node1.socket2.c16-g1-m32.yaml
+quit
