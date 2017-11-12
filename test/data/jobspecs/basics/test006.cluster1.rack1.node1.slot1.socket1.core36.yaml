@@ -17,7 +17,7 @@ resources:
                         count: 1
                         with:
                           - type: core
-                            count: 36
+                            count: 18
 # a comment
 attributes:
   system:

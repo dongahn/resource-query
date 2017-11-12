@@ -9,7 +9,7 @@ INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
 INFO: SCHEDULED AT=Now
 INFO: =============================
-      ---------------core36[1:x]
+      ---------------core18[1:x]
       ------------socket1[1:x]
       ---------node0[1:s]
       ------rack0[1:s]
@@ -29,7 +29,7 @@ INFO: JOBID=3
 INFO: RESOURCES=ALLOCATED
 INFO: SCHEDULED AT=Now
 INFO: =============================
-      ---------------core36[1:x]
+      ---------------core18[1:x]
       ------------socket1[1:x]
       ---------node1[1:s]
       ------rack0[1:s]
@@ -49,7 +49,7 @@ INFO: JOBID=5
 INFO: RESOURCES=RESERVED
 INFO: SCHEDULED AT=3600
 INFO: =============================
-      ---------------core36[1:x]
+      ---------------core18[1:x]
       ------------socket1[1:x]
       ---------node0[1:s]
       ------rack0[1:s]
@@ -69,7 +69,7 @@ INFO: JOBID=7
 INFO: RESOURCES=RESERVED
 INFO: SCHEDULED AT=3600
 INFO: =============================
-      ---------------core36[1:x]
+      ---------------core18[1:x]
       ------------socket1[1:x]
       ---------node1[1:s]
       ------rack0[1:s]
@@ -89,7 +89,7 @@ INFO: JOBID=9
 INFO: RESOURCES=RESERVED
 INFO: SCHEDULED AT=7200
 INFO: =============================
-      ---------------core36[1:x]
+      ---------------core18[1:x]
       ------------socket1[1:x]
       ---------node0[1:s]
       ------rack0[1:s]

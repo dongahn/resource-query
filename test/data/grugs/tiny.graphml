@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- 1 subsystem, cluster[1]->rack[1]->node[2]->socket[2]->core[36]  -->
+<!-- 1 subsystem, cluster[1]->rack[1]->node[2]->socket[2]->core[18]  -->
 <!--                                                     ->memory[8] -->
 <!--                                                     ->gpu[1]    -->
 <!-- Memory pool is model as 4 x 2GB                                 -->
@@ -116,7 +116,7 @@
         </edge>
         <edge id="socket2core" source="socket" target="core">
             <data key="id_scope">1</data>
-            <data key="multi_scale">36</data>
+            <data key="multi_scale">18</data>
         </edge>
         <edge id="socket2gpu" source="socket" target="gpu">
             <data key="id_scope">1</data>

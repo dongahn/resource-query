@@ -1,5 +1,5 @@
 INFO: Loading a matcher: CA
-      ---------------core71[1:x]
+      ---------------core35[1:x]
       ------------socket1[1:x]
       ---------node1[1:s]
       ------rack0[1:s]
@@ -9,7 +9,7 @@ INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
 INFO: SCHEDULED AT=Now
 INFO: =============================
-      ---------------core35[1:x]
+      ---------------core17[1:x]
       ------------socket0[1:x]
       ---------node1[1:s]
       ------rack0[1:s]
@@ -19,7 +19,7 @@ INFO: JOBID=2
 INFO: RESOURCES=ALLOCATED
 INFO: SCHEDULED AT=Now
 INFO: =============================
-      ---------------core71[1:x]
+      ---------------core35[1:x]
       ------------socket1[1:x]
       ---------node0[1:s]
       ------rack0[1:s]
@@ -29,7 +29,7 @@ INFO: JOBID=3
 INFO: RESOURCES=ALLOCATED
 INFO: SCHEDULED AT=Now
 INFO: =============================
-      ---------------core35[1:x]
+      ---------------core17[1:x]
       ------------socket0[1:x]
       ---------node0[1:s]
       ------rack0[1:s]

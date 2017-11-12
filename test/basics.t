@@ -58,8 +58,8 @@ test_expect_success "${test006_desc}" '
     test_cmp 006.R.out ${exp_dir}/006.R.out
 '
 
-cmds007="${cmd_dir}/test001.17x.slot1.core8-memory2.cmds"
-test007_desc="match allocate 17 jobspecs with 1 slot (8c,2m) (pol=hi)"
+cmds007="${cmd_dir}/test001.9x.slot1.core8-memory2.cmds"
+test007_desc="match allocate 9 jobspecs with 1 slot (8c,2m) (pol=hi)"
 test_expect_success "${test007_desc}" '
     ${query} -G ${grugs} -S CA -P high < ${cmds007} > 007.R.out &&
     test_cmp 007.R.out ${exp_dir}/007.R.out
@@ -121,8 +121,8 @@ test_expect_success "${test014_desc}" '
     test_cmp 014.R.out ${exp_dir}/014.R.out
 '
 
-cmds015="${cmd_dir}/test001.17x.slot1.core8-memory2.cmds"
-test015_desc="match allocate 17 jobspecs with 1 slot (8c,2m) (pol=hi)"
+cmds015="${cmd_dir}/test001.9x.slot1.core8-memory2.cmds"
+test015_desc="match allocate 9 jobspecs with 1 slot (8c,2m) (pol=hi)"
 test_expect_success "${test015_desc}" '
     ${query} -G ${grugs} -S CA -P high < ${cmds015} > 015.R.out &&
     test_cmp 015.R.out ${exp_dir}/015.R.out
