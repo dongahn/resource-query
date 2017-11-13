@@ -1,6 +1,6 @@
 #!/bin/sh
 
-test_description='Test Scheduling On Medium Machine Configuration'
+test_description='Test various full and partial hierarchical specifications'
 
 . $(dirname $0)/sharness.sh
 
