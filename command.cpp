@@ -129,7 +129,8 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
     } catch (ifstream::failure &e) {
         cerr << "ERROR: Exception occurs for input file I/O" << e.what () << endl;
     } catch (parse_error &e) {
-        cerr << "ERROR: Jobspec parse error" << e.what () << endl;
+        cerr << "ERROR: Jobspec error for " << ctx->jobid_counter <<": "
+             << e.what () << endl;
     }
     return 0;
 }
