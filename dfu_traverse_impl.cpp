@@ -90,7 +90,7 @@ bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
     int64_t avail;
 
     // Prune by the visiting resource vertex's availability
-    // if rack has been allocated exclusivley, no reason to descend
+    // if rack has been allocated exclusively, no reason to descend further
     p = (*m_graph)[u].schedule.plans;
     avail = planner_avail_resources_during (p, meta.at, meta.duration, 0);
     if (avail == 0) {
@@ -98,20 +98,18 @@ bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
         goto done;
     }
 
-    // Prune by tag or subtree plan if on of the resource request
-    // matches with the visiting vertex
     for (auto &resource : resources) {
         if ((*m_graph)[u].type != resource.type)
             continue;
 
-        // prune by tag
+        // Prune by tag
         if (meta.allocate && exclusive
             && !(*m_graph)[u].schedule.tags.empty ()) {
             rc = true;
             break;
         }
 
-        // prune by the subtree planner
+        // Prune by the subtree planner
         if (resource.user_data.empty ())
             continue;
         vector<uint64_t> aggs;
