@@ -1,0 +1,5 @@
+match allocate ../data/jobspecs/exclusive/test004.cluster.rack3x.node18
+match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node2
+match allocate ../data/jobspecs/exclusive/test004.cluster.rack1.node1
+match allocate ../data/jobspecs/exclusive/test004.node1.slot
+quit

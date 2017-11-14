@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- 1 subsystem, cluster[1]->rack[4]->node[18]->socket[2]->core[18]    -->
-<!--                                                      ->memory[128] -->
+<!--                                                      ->memory[256] -->
 <!--                                                      ->gpu[1]      -->
-<!-- Memory pool is model as 4 x 32GB                                   -->
+<!-- Memory pool is model as 4 x 32GB per socket                        -->
 
 
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns">
@@ -68,14 +68,14 @@
     </key>
 
 
-    <!-- generation recipe for the tiny cluster         -->
-    <graph id="tiny" edgedefault="directed">
+    <!-- generation recipe for the medium cluster         -->
+    <graph id="medium" edgedefault="directed">
 
         <!-- containment subsystem generation recipe    -->
         <node id="cluster">
             <data key="root">1</data>
             <data key="type">cluster</data>
-            <data key="basename">tiny</data> 
+            <data key="basename">medium</data> 
         </node>
         <node id="rack">
             <data key="type">rack</data>

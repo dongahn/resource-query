@@ -81,8 +81,6 @@ bool dfu_impl_t::exclusivity (const std::vector<Jobspec::Resource> &resources,
     return exclusive;
 }
 
-// TODO: there is a bug with exclusivity-based prunning
-//       look at this through a fine-toothed comb
 bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
                         const std::string &s, vtx_t u,
                         const std::vector<Jobspec::Resource> &resources)
@@ -90,6 +88,18 @@ bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
     bool rc = false;
     planner_t *p = NULL;
     int64_t avail;
+
+    // Prune by the visiting resource vertex's availability
+    // if rack has been allocated exclusivley, no reason to descend
+    p = (*m_graph)[u].schedule.plans;
+    avail = planner_avail_resources_during (p, meta.at, meta.duration, 0);
+    if (avail == 0) {
+        rc = true;
+        goto done;
+    }
+
+    // Prune by tag or subtree plan if on of the resource request
+    // matches with the visiting vertex
     for (auto &resource : resources) {
         if ((*m_graph)[u].type != resource.type)
             continue;
@@ -97,14 +107,6 @@ bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
         // prune by tag
         if (meta.allocate && exclusive
             && !(*m_graph)[u].schedule.tags.empty ()) {
-            rc = true;
-            break;
-        }
-
-        // prune by the planner
-        p = (*m_graph)[u].schedule.plans;
-        avail = planner_avail_resources_during (p, meta.at, meta.duration, 0);
-        if (avail == 0) {
             rc = true;
             break;
         }
@@ -123,6 +125,7 @@ bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
             break;
         }
     }
+done:
     return rc;
 }
 

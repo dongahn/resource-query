@@ -29,7 +29,7 @@ test_expect_success "${test001_desc}" '
 #
 
 cmds002="${cmd_dir}/test003.global.cmds"
-test001_desc="match allocate with different rack contraints (pol=low)"
+test002_desc="match allocate with different rack contraints (pol=low)"
 test_expect_success "${test002_desc}" '
     ${query} -G ${grugs} -S CA -P low < ${cmds002} > 002.R.out &&
     test_cmp 002.R.out ${exp_dir}/002.R.out
