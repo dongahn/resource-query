@@ -27,6 +27,6 @@ attributes:
     duration: 3600
 tasks:
   - command: app
-    slot: corelevel
+    slot: socketlevel
     count:
       per_slot: 1

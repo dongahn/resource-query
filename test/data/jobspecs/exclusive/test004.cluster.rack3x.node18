@@ -8,7 +8,7 @@ resources:
         exclusive: true
         with:
           - type: slot
-            label: corelevel
+            label: nodelevel
             count: 18
             with:
               - type: node
@@ -20,6 +20,6 @@ attributes:
     duration: 3600
 tasks:
   - command: app
-    slot: corelevel
+    slot: nodelevel
     count:
       per_slot: 1
