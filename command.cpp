@@ -79,7 +79,6 @@ static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
             ctx->allocations[jobid] = jobid;
         else
             ctx->reservations[jobid] = jobid;
-        ctx->jobid_counter++;
     } else {
         cout << "INFO:" << " =============================" << endl;
         cout << "INFO: " << "No matching resources found" << endl;
@@ -88,6 +87,7 @@ static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
             cout << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
         cout << "INFO:" << " =============================" << endl;
     }
+    ctx->jobid_counter++;
 }
 
 int cmd_match (resource_context_t *ctx, vector<string> &args)
