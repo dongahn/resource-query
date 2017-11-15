@@ -1,6 +1,6 @@
 #!/bin/sh
 
-test_description='Test reservations with jobs with varying geometry and times'
+test_description='Test reservations of jobs of varying geometries and durations'
 
 . $(dirname $0)/sharness.sh
 
