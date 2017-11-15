@@ -29,7 +29,7 @@ test_expect_success "${test001_desc}" '
 #
 
 cmds002="${cmd_dir}/test005.reservation.cmds"
-test002_desc="allocate or reserve 17 jobs (pol=hi)"
+test002_desc="allocate or reserve 17 jobs (pol=low)"
 test_expect_success "${test002_desc}" '
     ${query} -G ${grugs} -S CA -P low < ${cmds002} > 002.R.out &&
     test_cmp 002.R.out ${exp_dir}/002.R.out

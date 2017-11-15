@@ -1,6 +1,6 @@
-match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node18
-match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node18
-match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node18
-match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node18
-match allocate ../data/jobspecs/exclusive/test004.node1.slot
+match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node18.yaml
+match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node18.yaml
+match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node18.yaml
+match allocate ../data/jobspecs/exclusive/test004.cluster.rack1x.node18.yaml
+match allocate ../data/jobspecs/exclusive/test004.node1.slot.yaml
 quit
