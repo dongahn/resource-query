@@ -1,5 +1,6 @@
 /*****************************************************************************\
- *  Copyright (c) 2014 Lawrence Livermore National Security, LLC.  Produced at *  the Lawrence Livermore National Laboratory (cf, AUTHORS, DISCLAIMER.LLNS).
+ *  Copyright (c) 2014 Lawrence Livermore National Security, LLC.  Produced at
+ *  the Lawrence Livermore National Laboratory (cf, AUTHORS, DISCLAIMER.LLNS).
  *  LLNL-CODE-658032 All rights reserved.
  *
  *  This file is part of the Flux resource manager framework.
@@ -168,7 +169,12 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
                                   vtx_t src_v, int i, int sz, int j)
 {
     resource_graph_db_t &db = *m_db_p;
-    vtx_t v = add_vertex (db.resource_graph);
+    // If ROOT and it has already been emitted, just return that vertex
+    if (src_v == graph_traits<resource_graph_t>::null_vertex())
+        if (db.roots.find (recipe[u].subsystem) != db.roots.end ())
+            return db.roots[recipe[u].subsystem];
+
+    vtx_t v = add_vertex (db.resource_graph);;
     string pref = "";
     string ssys = recipe[u].subsystem;
     int id = 0;
@@ -178,6 +184,7 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
         db.roots[recipe[u].subsystem] = v;
         id = 0;
     } else {
+        v = add_vertex (db.resource_graph);
         id = gen_id (e, recipe, i, sz, j);
         pref = db.resource_graph[src_v].paths[ssys];
     }
