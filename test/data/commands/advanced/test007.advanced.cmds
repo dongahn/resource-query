@@ -1,0 +1,3 @@
+match allocate ../data/jobspecs/advanced/test006.local_bb.yaml
+match allocate ../data/jobspecs/advanced/test006.hetero.yaml
+quit

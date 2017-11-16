@@ -3,7 +3,7 @@
 <!-- 1 subsystem, cluster[1]->rack[4]->node[18]->socket[2]->core[18]    -->
 <!--                                                      ->memory[256] -->
 <!--                                                      ->gpu[1]      -->
-<!-- Memory pool is model as 4 x 32GB per socket                        -->
+<!-- Memory pool is modeled as 4 x 32GB per socket                      -->
 
 
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns">

@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- 1 subsystem, cluster[1]->rack[1]->node[2]->socket[2]->core[18]  -->
-<!--                                                     ->memory[8] -->
-<!--                                                     ->gpu[1]    -->
-<!-- Memory pool is modeled as 4 x 2GB                               -->
-
+<!-- 1 subsystem, cluster[1]->rack[6]->node[18]->socket[2]->core[18]    -->
+<!--                                                      ->memory[256] -->
+<!--                                                      ->gpu[1]      -->
+<!--                                           ->bb[768]                -->
+<!--                        ->octrack->node[4]->socket[2]->core[8]      -->
+<!--                                                     ->memory[32]   -->
+<!-- Memory pool is modeled as 4 x 32GB per socket                      -->
+<!-- Burst buffer pool is modeled as 3 x 256GB per socket               -->
 
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns">
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -68,20 +71,28 @@
     </key>
 
 
-    <!-- generation recipe for the tiny cluster         -->
-    <graph id="tiny" edgedefault="directed">
+    <!-- generation recipe for the advanced_test cluster -->
+    <graph id="advanced_test" edgedefault="directed">
 
         <!-- containment subsystem generation recipe    -->
         <node id="cluster">
             <data key="root">1</data>
             <data key="type">cluster</data>
-            <data key="basename">tiny</data> 
+            <data key="basename">advanced_test</data> 
         </node>
         <node id="rack">
             <data key="type">rack</data>
             <data key="basename">rack</data>
         </node>
+        <node id="octrack">
+            <data key="type">octrack</data>
+            <data key="basename">octrack</data>
+        </node>
         <node id="node">
+            <data key="type">node</data>
+            <data key="basename">node</data>
+        </node>
+        <node id="octnode">
             <data key="type">node</data>
             <data key="basename">node</data>
         </node>
@@ -89,14 +100,34 @@
             <data key="type">socket</data>
             <data key="basename">socket</data>
         </node>
+        <node id="octsocket">
+            <data key="type">socket</data>
+            <data key="basename">socket</data>
+        </node>
+        <node id="bb">
+            <data key="type">bb</data>
+            <data key="basename">bb</data>
+            <data key="size">256</data>
+            <data key="unit">GB</data>
+        </node>
         <node id="core">
+            <data key="type">core</data>
+            <data key="basename">core</data>
+        </node>
+        <node id="octcore">
             <data key="type">core</data>
             <data key="basename">core</data>
         </node>
         <node id="memory">
             <data key="type">memory</data>
             <data key="basename">memory</data>
-            <data key="size">2</data>
+            <data key="size">32</data>
+            <data key="unit">GB</data>
+        </node>
+        <node id="octmemory">
+            <data key="type">memory</data>
+            <data key="basename">memory</data>
+            <data key="size">32</data>
             <data key="unit">GB</data>
         </node>
         <node id="gpu">
@@ -105,14 +136,27 @@
         </node>
 
         <edge id="cluster2rack" source="cluster" target="rack">
+            <data key="multi_scale">6</data>
+        </edge>
+        <edge id="cluster2octrack" source="cluster" target="octrack">
             <data key="multi_scale">1</data>
         </edge>
         <edge id="rack2node" source="rack" target="node">
             <data key="id_scope">1</data>
-            <data key="multi_scale">2</data>
+            <data key="multi_scale">18</data>
+        </edge>
+        <edge id="octrack2octnode" source="octrack" target="octnode">
+            <data key="id_scope">1</data>
+            <data key="multi_scale">18</data>
         </edge>
         <edge id="node2socket" source="node" target="socket">
             <data key="multi_scale">2</data>
+        </edge>
+        <edge id="octnode2octsocket" source="octnode" target="octsocket">
+            <data key="multi_scale">2</data>
+        </edge>
+        <edge id="node2bb" source="node" target="bb">
+            <data key="multi_scale">3</data>
         </edge>
         <edge id="socket2core" source="socket" target="core">
             <data key="id_scope">1</data>
@@ -125,6 +169,14 @@
         <edge id="socket2memory" source="socket" target="memory">
             <data key="id_scope">1</data>
             <data key="multi_scale">4</data>
+        </edge>
+        <edge id="octsocket2core" source="octsocket" target="octcore">
+            <data key="id_scope">1</data>
+            <data key="multi_scale">8</data>
+        </edge>
+        <edge id="octsocket2memory" source="octsocket" target="octmemory">
+            <data key="id_scope">1</data>
+            <data key="multi_scale">1</data>
         </edge>
     </graph>
 </graphml>

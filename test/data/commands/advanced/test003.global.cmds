@@ -1,0 +1,4 @@
+match allocate ../data/jobspecs/global_constraints/test003.cluster.rack3.slot2.node1.socket2.core18.yaml
+match allocate ../data/jobspecs/global_constraints/test003.cluster.rack2.slot3.node1.socket2.core18.yaml
+match allocate ../data/jobspecs/global_constraints/test003.cluster.rack1.slot6.node1.socket2.core18.yaml
+quit
