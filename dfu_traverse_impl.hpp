@@ -171,7 +171,8 @@ public:
     int select (Jobspec::Jobspec &jobspec, vtx_t root, jobmeta_t &meta,
                 bool exclusive, unsigned int *needs);
 
-    /*! Update and emit the allocation/reservation made by the prior select call.
+    /*! Update the resource state based on the previous select invokcation
+     *  and emit the allocation/reservation information.
      *
      *  \param root      root resource vertex.
      *  \param meta      metadata on the job.
@@ -180,6 +181,15 @@ public:
      *  \return          0 on success; -1 on error.
      */
     int update (vtx_t root, jobmeta_t &meta, unsigned int needs, bool excl);
+
+    /*! Remove the allocation/reservation referred to by jobid and update
+     *  the resource state.
+     *
+     *  \param root      root resource vertex.
+     *  \param jobid     job id.
+     *  \return          0 on success; -1 on error.
+     */
+    int remove (vtx_t root, int64_t jobid);
 
 private:
     const std::string level () const;
@@ -251,6 +261,12 @@ private:
     int upd_dfv (vtx_t u, unsigned int needs,
                  bool excl, const jobmeta_t &meta,
                  std::map<std::string, int64_t> &to_parent);
+
+    // Remove allocation or reservations
+    int rem_subtree_plan (vtx_t u, int64_t jobid, const std::string &subsystem);
+    int rem_plan (vtx_t u, int64_t jobid);
+    int rem_dfv (vtx_t u, int64_t jobid);
+    int rem_upv (vtx_t u, int64_t jobid);
 
     // Resolve and enforce hierarchical constraints
     int resolve (vtx_t root, std::vector<Jobspec::Resource> &resources,

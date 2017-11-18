@@ -58,11 +58,32 @@ static double get_elapse_time (timeval &st, timeval &et)
     return ts2 - ts1;
 }
 
+static void get_jobstate_str (job_state_t state, string &mode)
+{
+    switch (state) {
+    case job_state_t::ALLOCATED:
+        mode = "ALLOCATED";
+        break;
+    case job_state_t::RESERVED:
+        mode = "RESERVED";
+        break;
+    case job_state_t::CANCELLED:
+        mode = "CANCELLED";
+        break;
+    case job_state_t::INIT:
+    default:
+        mode = "INIT";
+        break;
+    }
+    return;
+}
+
 static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
                                 string &jobspec_fn, bool matched, int64_t at,
                                 double elapse)
 {
     if (matched) {
+        job_state_t st;
         string mode = (at == 0)? "ALLOCATED" : "RESERVED";
         string scheduled_at = (at == 0)? "Now" : to_string (at);
         cout << "INFO:" << " =============================" << endl;
@@ -73,8 +94,8 @@ static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
             cout << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
 
         cout << "INFO:" << " =============================" << endl;
-        ctx->jobs[jobid] = new job_info_t (jobid, (at != 0), at,
-                                           jobspec_fn, elapse);
+        st = (at == 0)? job_state_t::ALLOCATED : job_state_t::RESERVED;
+        ctx->jobs[jobid] = new job_info_t (jobid, st, at, jobspec_fn, elapse);
         if (at == 0)
             ctx->allocations[jobid] = jobid;
         else
@@ -105,7 +126,7 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
     try {
         int rc = 0;
         int64_t at = 0;
-        uint64_t jobid = ctx->jobid_counter;
+        int64_t jobid = ctx->jobid_counter;
         string &jobspec_fn = args[2];
         ifstream jobspec_in;
         jobspec_in.exceptions (std::ifstream::failbit | std::ifstream::badbit);
@@ -116,12 +137,12 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
 
         gettimeofday (&st, NULL);
         if (args[1] == "allocate")
-            rc = ctx->traverser.run (job,
-                                     match_op_t::MATCH_ALLOCATE, jobid, &at);
+            rc = ctx->traverser.run (job, match_op_t::MATCH_ALLOCATE,
+                                     (int64_t)jobid, &at);
         else if (args[1] == "allocate_orelse_reserve")
             rc = ctx->traverser.run (job,
                                      match_op_t::MATCH_ALLOCATE_ORELSE_RESERVE,
-                                     jobid, &at);
+                                     (int64_t)jobid, &at);
         gettimeofday (&et, NULL);
         elapse = get_elapse_time (st, et);
         print_schedule_info (ctx, jobid, jobspec_fn, (rc == 0), at, elapse);
@@ -137,7 +158,31 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
 
 int cmd_cancel (resource_context_t *ctx, vector<string> &args)
 {
-    cout << "ERROR: " << "Not yet implmented " << endl;
+    if (args.size () != 2) {
+        cerr << "ERROR: malformed command" << endl;
+        return 0;
+    }
+    string jobid_str = args[1];
+    uint64_t jobid = (uint64_t)std::strtoll (jobid_str.c_str (), NULL, 10);
+    if (ctx->allocations.find (jobid) != ctx->allocations.end ()) {
+        ctx->allocations.erase (jobid);
+    } else if (ctx->reservations.find (jobid) == ctx->reservations.end ()) {
+        ctx->reservations.erase (jobid);
+    } else {
+        cerr << "ERROR: nonexistent job " << jobid;
+        goto done;
+    }
+
+    if (ctx->traverser.remove ((int64_t)jobid) == 0) {
+        if (ctx->jobs.find (jobid) != ctx->jobs.end ()) {
+           job_info_t *info = ctx->jobs[jobid];
+           info->state = job_state_t::CANCELLED;
+        }
+    } else {
+        cerr << "ERROR: error encountered while removing job " << jobid;
+    }
+
+done:
     return 0;
 }
 
@@ -145,7 +190,8 @@ int cmd_list (resource_context_t *ctx, vector<string> &args)
 {
     for (auto &kv: ctx->jobs) {
         job_info_t *info = kv.second;
-        string mode = (!info->reserved)? "ALLOCATED" : "RESERVED";
+        string mode;
+        get_jobstate_str (info->state, mode);
         cout << "INFO: " << info->jobid << ", " << mode << ", "
              << info->scheduled_at << ", " << info->jobspec_fn << ", "
              << info->overhead << endl;
@@ -164,8 +210,9 @@ int cmd_info (resource_context_t *ctx, vector<string> &args)
        cout << "ERROR: jobid doesn't exist: " << args[1] << endl;
        return 0;
     }
+    string mode;
     job_info_t *info = ctx->jobs[jobid];
-    string mode = (!info->reserved)? "ALLOCATED" : "RESERVED";
+    get_jobstate_str (info->state, mode);
     cout << "INFO: " << info->jobid << ", " << mode << ", "
          << info->scheduled_at << ", " << info->jobspec_fn << ", "
          << info->overhead << endl;

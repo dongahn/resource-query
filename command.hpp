@@ -34,12 +34,14 @@
 namespace Flux {
 namespace resource_model {
 
+enum class job_state_t { INIT, ALLOCATED, RESERVED, CANCELLED };
+
 struct job_info_t {
-    job_info_t (uint64_t j, bool r, int64_t at, std::string fn, double o)
-        : jobid (j), reserved (r), scheduled_at (at), jobspec_fn (fn),
+    job_info_t (uint64_t j, job_state_t s, int64_t at, std::string fn, double o)
+        : jobid (j), state (s), scheduled_at (at), jobspec_fn (fn),
           overhead (o) { }
     uint64_t jobid = UINT64_MAX;
-    bool reserved = false;
+    job_state_t state = job_state_t::INIT;
     int64_t scheduled_at = -1;
     std::string jobspec_fn;
     double overhead = 0.0f;

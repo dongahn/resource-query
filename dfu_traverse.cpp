@@ -188,6 +188,20 @@ int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
     return rc;
 }
 
+int dfu_traverser_t::remove (int64_t jobid)
+{
+    const subsystem_t &dom = get_match_cb ()->dom_subsystem ();
+    if (!get_graph () || !get_roots ()
+        || get_roots ()->find (dom) == get_roots ()->end ()
+        || !get_match_cb ()) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    vtx_t root = get_roots ()->at(dom);
+    return detail::dfu_impl_t::remove (root, jobid);
+}
+
 /*
  * vi:tabstop=4 shiftwidth=4 expandtab
  */

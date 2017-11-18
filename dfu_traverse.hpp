@@ -108,6 +108,15 @@ public:
      */
     int run (Jobspec::Jobspec &jobspec, match_op_t op, int64_t id, int64_t *at);
 
+    /*! Remove the allocation/reservation referred to by jobid and update
+     *  the resource state.
+     *
+     *  \param jobid     job id.
+     *  \return          0 on success; -1 on error.
+     *                       EINVAL: graph, roots or match callback not set.
+     */
+    int remove (int64_t jobid);
+
 private:
     int schedule (Jobspec::Jobspec &jobspec,
                   detail::jobmeta_t &meta, bool x, match_op_t op,

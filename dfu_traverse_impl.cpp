@@ -540,7 +540,7 @@ int dfu_impl_t::updcore (vtx_t u, const subsystem_t &s, unsigned int needs,
 {
     int64_t span = -1;
     if (excl) {
-        // TODO: Please explain
+        // If exclusive access, we add a new span into the resource's plan
         const uint64_t u64needs = (const uint64_t)needs;
         n++;
         planner_t *plans = (*m_graph)[u].schedule.plans;
@@ -549,15 +549,16 @@ int dfu_impl_t::updcore (vtx_t u, const subsystem_t &s, unsigned int needs,
     }
 
     if (n > 0) {
-        planner_t *subtree_plan = (*m_graph)[u].idata.subplans[s];
-        if (meta.allocate)
-            (*m_graph)[u].schedule.tags[meta.jobid] = meta.jobid;
+        // on a vertex with exclusive access or all of its ancestors
+        (*m_graph)[u].schedule.tags[meta.jobid] = meta.jobid;
         if (excl) {
             if (meta.allocate)
                 (*m_graph)[u].schedule.allocations[meta.jobid] = span;
             else
                 (*m_graph)[u].schedule.reservations[meta.jobid] = span;
         }
+
+        planner_t *subtree_plan = (*m_graph)[u].idata.subplans[s];
         if (subtree_plan && !dfu.empty ()) {
             vector<uint64_t> aggregate;
             count (subtree_plan, dfu, aggregate);
@@ -613,6 +614,91 @@ int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
     (*m_graph)[u].idata.colors[dom] = m_color.black (m_color_base);
 
     return updcore (u, dom, needs, excl, n_plans, meta, dfu, to_parent);
+}
+
+int dfu_impl_t::rem_upv (vtx_t u, int64_t jobid)
+{
+    // NYI
+    return 0;
+}
+
+int dfu_impl_t::rem_plan (vtx_t u, int64_t jobid)
+{
+    int rc = 0;
+    int64_t span = -1;
+    planner_t *plans = NULL;
+
+    if ((*m_graph)[u].schedule.allocations.find (jobid)
+        != (*m_graph)[u].schedule.allocations.end ()) {
+        span = (*m_graph)[u].schedule.allocations[jobid];
+        (*m_graph)[u].schedule.allocations.erase (jobid);
+    } else if ((*m_graph)[u].schedule.reservations.find (jobid)
+               != (*m_graph)[u].schedule.reservations.end ()) {
+        span = (*m_graph)[u].schedule.reservations[jobid];
+        (*m_graph)[u].schedule.reservations.erase (jobid);
+    }
+
+    if (span != -1) {
+        planner_t *plans = (*m_graph)[u].schedule.plans;
+        if (plans == NULL) {
+            rc = -1;
+            goto done;
+        }
+        rc = planner_rem_span (plans, span);
+    }
+done:
+    return rc;
+}
+
+int dfu_impl_t::rem_subtree_plan (vtx_t u, int64_t jobid,
+                                  const string &subsystem)
+{
+    int rc = 0;
+    int span = -1;
+    planner_t *subtree_plan = NULL;
+    if ((subtree_plan = (*m_graph)[u].idata.subplans[subsystem]) == NULL)
+        goto done;
+    if ((*m_graph)[u].idata.job2span.find (jobid)
+        == (*m_graph)[u].idata.job2span.end ())
+        goto done;
+    if ((span = (*m_graph)[u].idata.job2span[jobid]) == -1) {
+        rc = -1;
+        goto done;
+     }
+    rc = planner_rem_span (subtree_plan, span);
+done:
+    return rc;
+}
+
+int dfu_impl_t::rem_dfv (vtx_t u, int64_t jobid)
+{
+    int rc = 0;
+    int64_t span = -1;
+    const string &dom = m_match->dom_subsystem ();
+    graph_traits<f_resource_graph_t>::out_edge_iterator ei, ei_end;
+
+    if ((*m_graph)[u].schedule.tags.find (jobid)
+        == (*m_graph)[u].schedule.tags.end ())
+        goto done;
+    (*m_graph)[u].schedule.tags.erase (jobid);
+    if ( (rc = rem_plan (u, jobid)) != 0)
+        goto done;
+    if ( (rc = rem_subtree_plan (u, jobid, dom)) != 0)
+        goto done;
+
+    for (auto &subsystem : m_match->subsystems ()) {
+        for (tie (ei, ei_end) = out_edges (u, *m_graph); ei != ei_end; ++ei) {
+            if (!in_subsystem (*ei, subsystem) || stop_explore (*ei, subsystem))
+                continue;
+            vtx_t tgt = target (*ei, *m_graph);
+            if (subsystem == dom)
+                rc += rem_dfv (tgt, jobid);
+            else
+                rc += rem_upv (tgt, jobid);
+        }
+    }
+done:
+    return rc;
 }
 
 
@@ -774,10 +860,17 @@ int dfu_impl_t::update (vtx_t root, jobmeta_t &meta, unsigned int needs,
 {
     int rc = -1;
     map<string, int64_t> dfu;
-
     tick_color_base ();
     rc = upd_dfv (root, needs, exclusive, meta, dfu);
     return (rc > 0)? 0 : -1;
+}
+
+int dfu_impl_t::remove (vtx_t root, int64_t jobid)
+{
+    int rc = -1;
+    tick_color_base ();
+    rc = rem_dfv (root, jobid);
+    return rc;
 }
 
 /*
