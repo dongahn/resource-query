@@ -1,0 +1,52 @@
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.01.node1.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.02.node100.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.03.slot100.node.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.04.slot64.node.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.05.node64.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.06.node13.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.07.node8.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.08.node15.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.09.slot15.node.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.10.node13.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.11.node8.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.12.node64.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.13.node7.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.14.node2.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.15.node6.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.16.node6.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.17.node44.slot.yaml
+cancel 1
+cancel 2
+cancel 3
+cancel 4
+cancel 5
+cancel 6 
+cancel 7
+cancel 8
+cancel 9
+cancel 10
+cancel 11
+cancel 12 
+cancel 13
+cancel 14
+cancel 15
+cancel 16
+cancel 17
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.01.node1.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.02.node100.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.03.slot100.node.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.04.slot64.node.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.05.node64.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.06.node13.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.07.node8.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.08.node15.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.09.slot15.node.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.10.node13.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.11.node8.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.12.node64.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.13.node7.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.14.node2.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.15.node6.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.16.node6.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/reservation/test005.17.node44.slot.yaml
+quit
