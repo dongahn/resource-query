@@ -444,7 +444,7 @@ it will select node1. The following is the source listing for
 its `dom_finish_vtx ()`. It is invoked when all of the subtree walk (on
 the selected dominant subsystem) and up walk (on the selected
 auxiliary subsystems) from the visiting vertex have been completed
-and there are enough resource unit that can satisfy
+and there are enough resource units that can satisfy
 the job specification (i.e., method argument `resources`).
 
 Warning: note that up walk logic has not yet been fully tested
