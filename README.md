@@ -434,7 +434,8 @@ auxiliary subsystems.
 
 `dfu_match_id_based.hpp` shows three demo match callback
 implementations. They only overwrite `dom_finish_vtx ()` and
-`dom_finish_graph ()` to effect their selection policies as
+`dom_finish_graph ()` and `dom_finish_slot ()` to effect
+their selection policies as
 they just use one dominant subsystem: `containment`.
 For example, the policy implemented in `high_first_t` provides
 preferences towards higher IDs for resource selection; for example,
