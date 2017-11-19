@@ -166,7 +166,7 @@ int cmd_cancel (resource_context_t *ctx, vector<string> &args)
     uint64_t jobid = (uint64_t)std::strtoll (jobid_str.c_str (), NULL, 10);
     if (ctx->allocations.find (jobid) != ctx->allocations.end ()) {
         ctx->allocations.erase (jobid);
-    } else if (ctx->reservations.find (jobid) == ctx->reservations.end ()) {
+    } else if (ctx->reservations.find (jobid) != ctx->reservations.end ()) {
         ctx->reservations.erase (jobid);
     } else {
         cerr << "ERROR: nonexistent job " << jobid;

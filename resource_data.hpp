@@ -25,6 +25,7 @@
 
 #include <uuid/uuid.h>
 #include <string>
+#include <cstring>
 #include <map>
 #include <set>
 #include "planner/planner.h"

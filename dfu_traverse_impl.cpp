@@ -102,18 +102,29 @@ bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
         if ((*m_graph)[u].type != resource.type)
             continue;
 
-        // Prune by tag
-        if (meta.allocate && exclusive
-            && !(*m_graph)[u].schedule.tags.empty ()) {
-            rc = true;
-            break;
+        // Note: we don't do prune by tag because allocation vs. reservation
+        // make what to prune a bit complex without clear benfit
+        // We instead perform exclusivity check using subtree planner.
+        // TODO: May need a bit better scheme to ensure subtree planners are always
+        // updated. Do make sure you will keep track of a resource type that always
+        // presence at the fringes of the tree
+        p = (*m_graph)[u].idata.subplans[s];
+        if (resource.exclusive == Jobspec::tristate_t::TRUE) {
+            size_t len = planner_resources_len (p);
+            int64_t *resources = (int64_t *)malloc (len * sizeof (int64_t));
+            planner_avail_resources_array_during (p, meta.at, meta.duration, resources, len);
+            for (int i = 0; i < len; i++) {
+                if (resources[i] < planner_resource_total_at (p, i)) {
+                    rc = true;
+                    break;
+                }
+           }
         }
 
-        // Prune by the subtree planner
+        // Prune by the subtree planner quantities
         if (resource.user_data.empty ())
             continue;
         vector<uint64_t> aggs;
-        p = (*m_graph)[u].idata.subplans[s];
         count (p, resource.user_data, aggs);
         if (aggs.empty ())
             continue;
@@ -194,7 +205,7 @@ const vector<Resource> &dfu_impl_t::test (vtx_t u,
         *spec = match_kind_t::RESOURCE_MATCH;
         ret = &(match_resources->with);
     } else {
-        *spec = match_kind_t::NO_MATCH;
+        *spec = match_kind_t::NONE_MATCH;
     }
     return *ret;
 }
@@ -664,7 +675,7 @@ int dfu_impl_t::rem_subtree_plan (vtx_t u, int64_t jobid,
     if ((span = (*m_graph)[u].idata.job2span[jobid]) == -1) {
         rc = -1;
         goto done;
-     }
+    }
     rc = planner_rem_span (subtree_plan, span);
 done:
     return rc;
