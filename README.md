@@ -212,7 +212,7 @@ number of copies of the resources of the target type. An associative edge
 allows a source resource to be associated with some of the already generated resources
 in a specific manner.
 
-The resource service strawman walks this recipe graph using
+The scheduling infrastructure walks this recipe graph using
 the depth-first-search traversal and emits and stores the corresponding
 resources and their relationship data into its resource graph store.  
 The recipe graph must be a forest of trees whereby each tree represents
@@ -403,7 +403,8 @@ Usage: grug2dot <genspec>.graphml
 ```
 
 ## Documentation for Flux Scheduling Infrastructure Code Base
-We have minimal support for doxygen documentation. It can be generated:
+The source base has in-line documentation support for doxygen.
+It can be generated:
 
 ```
 $ cd doxy
@@ -413,8 +414,120 @@ $ cd ..
 This will generate html, latex and man sub-directories under
 the doc directory. Open doc/html/index.html using your favorite web
 browser. NOTE for LLNL developers: It doesn't build on TOSS2 systems
-because their compilers are old. Please use a TOSS3 machine or your
+because their compilers are too old. Please use a TOSS3 machine or your
 own laptop (e.g. Mac OSX)
 
-## How to Use Scoring API to Effect Your Resource Selection Policy
-TBD
+## Resource Selection Policy
+Scheduler resource selection policy implementers can effect
+their policies by deriving from our base match callback
+class (`dfu_match_cb_t`) and overwriting one or more of its virtual methods.
+The DFU traverser's `run ()` method calls back these methods
+on well-defined graph vertex visit events and uses both 
+match and score information to determine best matching.
+
+Currently the supported visit events are: 
+
+- preorder, postorder, slot, and finish graph events on the selected
+dominant subsystem;
+- preorder and postorder events on one or more selected
+auxiliary subsystems.
+
+`dfu_match_id_based.hpp` shows three demo match callback
+implementations. They only overwrite `dom_finish_vtx ()` and
+`dom_finish_graph ()` to effect their selection policies as
+they just use one dominant subsystem: `containment`.
+For example, the policy implemented in `high_first_t` provides
+preferences towards higher IDs for resource selection; for example,
+if node0 and node1 are both available and the user wanted only 1 node,
+it will select node1. The following is the source listing for
+its `dom_finish_vtx ()`. It is invoked when all of the subtree walk (on
+the selected dominant subsystem) and up walk (on the selected
+auxiliary subsystems) from the visiting vertex have been completed
+and there are enough resource unit that can satisfy
+the job specification (i.e., method argument `resources`).
+
+Warning: note that up walk logic has not yet been fully tested
+and hardened.
+
+
+```c++
+ 84     int dom_finish_vtx (vtx_t u, const subsystem_t &subsystem,
+ 85                         const std::vector<Flux::Jobspec::Resource> &resources,
+ 86                         const f_resource_graph_t &g, scoring_api_t &dfu)
+ 87     {
+ 88         int64_t score = MATCH_MET;
+ 89         int64_t overall;
+ 90
+ 91         for (auto &resource : resources) {
+ 92             if (resource.type != g[u].type)
+ 93                 continue;
+ 94
+ 95             // jobspec resource type matches with the visiting vertex
+ 96             for (auto &c_resource : resource.with) {
+ 97                 // test children resource count requirements
+ 98                 const std::string &c_type = c_resource.type;
+ 99                 unsigned int qc = dfu.qualified_count (subsystem, c_type);
+100                 unsigned int count = select_count (c_resource, qc);
+101                 if (count == 0) {
+102                     score = MATCH_UNMET;
+103                     break;
+104                 }
+105                 dfu.choose_accum_best_k (subsystem, c_resource.type, count);
+106             }
+107         }
+108
+109         // high id first policy (just a demo policy)
+110         overall = (score == MATCH_MET)? (score + g[u].id + 1) : score;
+111         dfu.set_overall_score (overall);
+112         decr ();
+113         return (score == MATCH_MET)? 0 : -1;
+114     }
+```
+
+The scoring API object, `dfu`, contains relevant resource information
+gathered as part of the subtree and up walks.
+
+For example, you are visiting
+a `socket` vertex and `dfu` contains a map of all of the resources
+that are at its subtree. For instance, 18 compute cores and 4 units
+of 16GB.
+Further, if the resource request was `slot[1]->socket[2]->core[4]`, 
+the passed `resources` at the `socket` vertex visit level
+would be `core[4]`. The method then checks the count satifiability
+of the visiting `socket`'s child resource and then calls
+`choose_accum_best_k ()` within `dfu` scoring API object
+to choose the best matching 4 cores among
+however many cores available.
+
+`choose_accum_best_k ()` uses the scores that have already been
+calculated during the subtree walk at the core resource level.
+Because the default comparator of this method is `fold::greater`,
+it sorts the cores in descending ID order.
+
+If the visiting vertex satisfies the request, it sets the score
+of the visiting vertex using `set_overall_score ()` method.
+In this case, the score is merely the ID number of the visiting vertex.  
+
+Similarly, `dom_finish_graph ()` performs the same logic
+as `dom_finish_vertex ()` but has been introduced so that
+we can perform a selection for the root resource vertex
+(e.g., `cluster[1]`) without having to introduce special
+casing within `dom_finish_vtx ()`.
+
+Finally, `dom_finish_slot ()` is introduced so that the match
+callback can provide score information on the discovered slots
+using its comparator.
+Note that, though, there exists no real `slot` resource vertex in the
+resource graph, so you can't get a postorder visit event per each
+slot. Instead, the DFU traverser by itself will perform the satisfiability
+check on the child resource shape of each slot. But this matcher
+callback method still provides an opportunity to the match
+callback class to score all of the the child resources
+of the discovered `slot`. This example
+uses `choose_accum_all ()` method within the scoring API
+object to sort all of the child resources of `slot` according
+to its selection policy.
+
+The Scoring API classes and implementation are entirely
+located in `scoring_api.hpp`.
+
