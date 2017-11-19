@@ -489,7 +489,7 @@ gathered as part of the subtree and up walks.
 
 For example, you are visiting
 a `socket` vertex and `dfu` contains a map of all of the resources
-that are at its subtree. For instance, 18 compute cores and 4 units
+that are at its subtree, which may be 18 compute cores and 4 units
 of 16GB.
 Further, if the resource request was `slot[1]->socket[2]->core[4]`, 
 the passed `resources` at the `socket` vertex visit level
