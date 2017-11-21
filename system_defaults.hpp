@@ -25,6 +25,7 @@
 #ifndef SYSTEM_DEFAULT_HPP
 #define SYSTEM_DEFAULT_HPP
 
+// These need to be coverted into a resource configuration file in TOML format
 namespace Flux {
 namespace resource_model {
 namespace detail {
