@@ -1,0 +1,3 @@
+match allocate ../data/jobspecs/coarse_iobw/test.01.iobw4.node100.slot.yaml
+match allocate_orelse_reserve ../data/jobspecs/coarse_iobw/test.02.iobw4.node100.slot.yaml
+quit
