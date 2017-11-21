@@ -173,9 +173,6 @@ IDs first. For more information about the options: `resource-query --help`
 will print available options.  `resource-query> help` will print out messages
 to explain cli commands.
 
-NOTE: both `resource-query` and scheduling infrastructure work within Flux
-are in very early development stages; please set your expectations accordingly.
-
 ## Generating Resources Using GraphML (GRUG)
 
 GRUG is a GraphML-based language for specifying a resource-graph generation recipe.
@@ -447,8 +444,7 @@ auxiliary subsystems) from the visiting vertex have been completed
 and there are enough resource units that can satisfy
 the job specification (i.e., method argument `resources`).
 
-Warning: note that up walk logic has not yet been fully tested
-and hardened.
+Note: up walk logic has not yet been fully tested and hardened.
 
 
 ```c++
