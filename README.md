@@ -532,3 +532,73 @@ to its selection policy.
 The Scoring API classes and implementation are entirely
 located in `scoring_api.hpp`.
 
+## Fully vs. Paritially Specified Resource Request
+
+The resource section of a job specification can be fully
+or partitially hierarchically specified. A fully specified request describes
+the resource shape fully from the root to the requested resources with respect
+to the resource graph data used by `resource-query`. A partially
+specified resource request omits the prefix (i.e., from the root
+to the highest-level resources in the request). For example, if the resource
+graph data used by `resource-query` is the following,
+
+![](resource.png)
+
+then, the next fully hierarchically specifies
+the resource request:
+
+```yaml
+version: 1
+resources:
+    - type: cluster
+      count: 1
+      with:
+        - type: rack
+          count: 1
+          with:
+            - type: node
+              count: 1
+              with:
+                  - type: slot
+                    count: 1
+                    label: default
+                    with:
+                      - type: socket
+                        count: 1
+                        with:
+                          - type: core
+                            count: 1
+
+```
+
+By contrast, the following partially hierarchically specifies
+the resource shape, as it omits from the `cluster` and `rack` levels.
+
+```yaml
+version: 1
+resources:
+  - type: node
+    count: 1
+    with:
+        - type: slot
+          count: 1
+          label: default
+          with:
+            - type: socket
+              count: 1
+              with:
+                - type: core
+                  count: 1
+
+```
+
+Because the latter does not impose higher-level (i.e.,
+`cluster` and `rack` levels) constraints, `node` type resources
+will be evaluated by the match callbacks and all of them will be compared 
+at once to select the highest scored node. 
+On the other hand, with the higher-level constraints of the former specification,
+`resource-query` will choose the highest-scored node at the `rack` level
+in the same manner as how it enforces the lower-level constraints (e.g., `socket`).
+
+
+
