@@ -602,7 +602,6 @@ int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
     const string &dom = m_match->dom_subsystem ();
     graph_traits<f_resource_graph_t>::out_edge_iterator ei, ei_end;
     m_trav_level++;
-
     for (auto &subsystem : m_match->subsystems ()) {
         for (tie (ei, ei_end) = out_edges (u, *m_graph); ei != ei_end; ++ei) {
             if (!in_subsystem (*ei, subsystem) || stop_explore (*ei, subsystem))

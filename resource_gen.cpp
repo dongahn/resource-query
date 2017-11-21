@@ -169,7 +169,6 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
                                   vtx_t src_v, int i, int sz, int j)
 {
     resource_graph_db_t &db = *m_db_p;
-    // If ROOT and it has already been emitted, just return that vertex
     if (src_v == graph_traits<resource_graph_t>::null_vertex())
         if (db.roots.find (recipe[u].subsystem) != db.roots.end ())
             return db.roots[recipe[u].subsystem];
@@ -270,9 +269,11 @@ void dfs_emitter_t::tree_edge (gge_t e, const gg_t &recipe)
 
     if (recipe[src_ggv].root) {
         //! ROOT
-        vtx_t null_v = graph_traits<resource_graph_t>::null_vertex();
-        m_gen_src_vtx[src_ggv].push_back (emit_vertex (src_ggv, e, recipe,
-                                                     null_v, 0, 1, 0));
+        if (m_gen_src_vtx[src_ggv].empty ()) {
+            vtx_t null_v = graph_traits<resource_graph_t>::null_vertex();
+            m_gen_src_vtx[src_ggv].push_back (emit_vertex (src_ggv, e, recipe,
+                                                           null_v, 0, 1, 0));
+        }
     }
 
     m_gen_src_vtx[tgt_ggv] = vector<vtx_t>();
