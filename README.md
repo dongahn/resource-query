@@ -597,4 +597,130 @@ On the other hand, with the higher-level constraints of the former specification
 in the same manner as how it enforces the lower-level constraints (e.g., `socket`).
 
 
+## Limitations of Depth-First and Up (DFU) Traversal
+
+You can implement a wide range of resource selection policy classes
+using the DFU traversal, in particular in combination
+with other mechanisms (e.g., choosing a different set and order of subsystems).
+DFU, however, is a simple, one-pass traversal type and hence there are
+inherient limitations associated with DFU, which may preclude you from
+implementing certain policies.
+
+For example, currently DFU cannot handle the following job specification even
+if there is a rack that contains those nodes that can satisfy
+either type of node requirements: one with more cores and burst buffers (bb)
+and the other fewer cores with no advanced features.
+
+```yaml
+version: 1
+resources:
+  - type: cluster
+    count: 1
+    with:
+      - type: rack
+        count: 1
+        with:
+          - type: slot
+            count: 2
+            label: gpunode
+            with:
+              - type: node
+                count: 1
+                with:
+                  - type: socket
+                    count: 2
+                    with:
+                      - type: core
+                        count: 18
+                      - type: gpu
+                        count: 1
+                      - type: memory
+                        count: 32
+                  - type: bb
+                    count: 768
+
+              - type: node
+                count: 1
+                with:
+                  - type: slot
+                    count: 2
+                    label: bicore
+                      - type: socket
+                        count: 1
+                        with:
+                          - type: core
+                            count: 2
+```
+
+In general, to be able to handle a job specification
+where resource requests of a same type appears
+at the same hierarchical level (in this case compute `node` type
+under the `rack` level), the traverser must be able to
+perform a subtree walk for each of them to evaluate a match.
+However, DFU does not have an ability to repeat certain subtree
+walks and thus it cannot handle this matching problem.
+
+Note that DFU can solve similar but slightly different matching problem:
+different `node` types are contained within differently named rack types.
+For example, the following job specification can be matched if the
+underlying resource model labels the type of the rack with the beefy compute
+nodes as `rack` and the other as `birack`.
+
+```yaml
+  - type: cluster
+    count: 1
+    with:
+      - type: rack
+        count: 1
+        with:
+          - type: slot
+            count: 2
+            label: gpunode
+            with:
+              - type: node
+                count: 1
+                with:
+                  - type: socket
+                    count: 2
+                    with:
+                      - type: core
+                        count: 18
+                      - type: gpu
+                        count: 1
+                      - type: memory
+                        count: 32
+                  - type: bb
+                    count: 768
+
+      - type: birack
+        count: 1
+        with:
+          - type: slot
+            count: 2
+            label: bicorenode
+            with:
+              - type: node
+                count: 1
+                with:
+                  - type: socket
+                    count: 2
+                    with:
+                      - type: core
+                        count: 2
+
+
+```
+
+
+When more advanced classes of resource selection policies are required,
+you need to introduce new traversal types. For example, an ability
+to traverse a subtree more than once for depth first walk
+-- e.g., Loop-aware DFU -- can solve the examples shown above.
+We designed our scheduling infrastructure to be extended. In fact,
+it is our future work to extend our infrastracture with more capable
+traversal types.
+
+If you are interested in our earlier discussions on the different classes
+of matching problems, please refer to
+[this issue](https://github.com/flux-framework/flux-sched/issues/247#issuecomment-310551638)
 
