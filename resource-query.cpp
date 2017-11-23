@@ -369,11 +369,11 @@ static void control_loop (resource_context_t *ctx)
 {
     cmd_func_f *cmd = NULL;
     while (1) {
-        char *line = readline("resource-query> ");
+        char *line = readline ("resource-query> ");
         if (line == NULL)
             continue;
         else if(*line)
-            add_history(line);
+            add_history (line);
 
         vector<string> tokens;
         istringstream iss (line);
