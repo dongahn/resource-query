@@ -1,0 +1,7 @@
+match allocate ../data/jobspecs/min_max/test.02.node1.incr2.slot1-2.yaml
+match allocate ../data/jobspecs/min_max/test.00.node107.slot1.yaml
+match allocate ../data/jobspecs/min_max/test.02.node1.incr2.slot1-2.yaml
+cancel 2
+match allocate ../data/jobspecs/min_max/test.02.node1.incr2.slot1-2.yaml
+match allocate ../data/jobspecs/min_max/test.02.node1.incr2.slot1-2.yaml
+quit

@@ -1,0 +1,14 @@
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+match allocate ../data/jobspecs/min_max/test.05.power4.node1-64.slot.yaml
+quit
