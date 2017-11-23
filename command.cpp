@@ -119,7 +119,7 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
     }
     string subcmd = args[1];
     if (!(subcmd == "allocate" || subcmd == "allocate_orelse_reserve")) {
-        cerr << "ERROR: unknown subcmd" << args[1] << endl;
+        cerr << "ERROR: unknown subcmd " << args[1] << endl;
         return 0;
     }
 
@@ -169,7 +169,7 @@ int cmd_cancel (resource_context_t *ctx, vector<string> &args)
     } else if (ctx->reservations.find (jobid) != ctx->reservations.end ()) {
         ctx->reservations.erase (jobid);
     } else {
-        cerr << "ERROR: nonexistent job " << jobid;
+        cerr << "ERROR: nonexistent job " << jobid << endl;
         goto done;
     }
 
@@ -179,7 +179,7 @@ int cmd_cancel (resource_context_t *ctx, vector<string> &args)
            info->state = job_state_t::CANCELLED;
         }
     } else {
-        cerr << "ERROR: error encountered while removing job " << jobid;
+        cerr << "ERROR: error encountered while removing job " << jobid << endl;
     }
 
 done:
