@@ -236,6 +236,8 @@ private:
     int aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &subsystem,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
                  scoring_api_t &to_parent);
+    int cnt_slot (const std::vector<Jobspec::Resource> &slot_shape,
+                  scoring_api_t &dfu_slot);
     int dom_slot (const jobmeta_t &meta, vtx_t u,
                   const std::vector<Jobspec::Resource> &resources, bool *excl,
                   bool *leaf, scoring_api_t &dfu);

@@ -352,6 +352,27 @@ int dfu_impl_t::dom_exp (const jobmeta_t &meta, vtx_t u,
     return rc;
 }
 
+int dfu_impl_t::cnt_slot (const vector<Resource> &slot_shape,
+                                 scoring_api_t &dfu_slot)
+{
+    unsigned int qc = 0;
+    unsigned int fit = 0;
+    unsigned int count = 0;
+    unsigned int qual_num_slots = UINT_MAX;
+    const subsystem_t &dom = m_match->dom_subsystem ();
+
+    // qualifed slot count is determined by the most constrained resource type
+    qual_num_slots = UINT_MAX;
+    for (auto &slot_elem : slot_shape) {
+        qc = dfu_slot.qualified_count (dom, slot_elem.type);
+        count = m_match->select_count (slot_elem, qc);
+        fit = (count == 0)? count : (qc / count);
+        qual_num_slots = (qual_num_slots > fit)? fit : qual_num_slots;
+        dfu_slot.rewind_iter_cur (dom, slot_elem.type);
+    }
+    return qual_num_slots;
+}
+
 int dfu_impl_t::dom_slot (const jobmeta_t &meta, vtx_t u,
                           const vector<Resource> &slot_shape,
                           bool *excl, bool *leaf, scoring_api_t &dfu)
@@ -361,29 +382,22 @@ int dfu_impl_t::dom_slot (const jobmeta_t &meta, vtx_t u,
     scoring_api_t dfu_slot;
     unsigned int qual_num_slots = 0;
     const subsystem_t &dom = m_match->dom_subsystem ();
-    rc = explore (meta, u, dom, slot_shape, &x_inout, leaf, visit_t::DFV, dfu_slot);
-    if (rc != 0)
+
+    if ( (rc = explore (meta, u, dom, slot_shape, &x_inout, leaf,
+                        visit_t::DFV, dfu_slot)) != 0)
         goto done;
     if ((rc = m_match->dom_finish_slot (dom, dfu_slot)) != 0)
         goto done;
 
-    qual_num_slots = UINT_MAX;
-    // TODO: count max/min
-    for (auto &slot_elem : slot_shape) {
-        unsigned int qc = dfu_slot.qualified_count (dom, slot_elem.type);
-        unsigned int fit = (qc / slot_elem.count.max);
-        qual_num_slots = (qual_num_slots > fit)? fit : qual_num_slots;
-        //unsigned int count = select_count (slot_elem, qc);
-    }
-
+    qual_num_slots = cnt_slot (slot_shape, dfu_slot);
     for (int i = 0; i < qual_num_slots; ++i) {
         eval_egroup_t edg_group;
         int score = MATCH_MET;
         for (auto &slot_elem : slot_shape) {
-            int j = 0;
-            if (i == 0)
-                dfu_slot.rewind_iter_cur (dom, slot_elem.type);
-            while (j < slot_elem.count.max) {
+            unsigned int j = 0;
+            unsigned int qc = dfu_slot.qualified_count (dom, slot_elem.type);
+            unsigned int count = m_match->select_count (slot_elem, qc);
+            while (j < count) {
                 auto egroup_i = dfu_slot.iter_cur (dom, slot_elem.type);
                 eval_edg_t ev_edg ((*egroup_i).edges[0].count,
                                    (*egroup_i).edges[0].count, 1,
@@ -399,7 +413,6 @@ int dfu_impl_t::dom_slot (const jobmeta_t &meta, vtx_t u,
         edg_group.exclusive = 1;
         dfu.add (dom, string ("slot"), edg_group);
     }
-
 done:
     return (qual_num_slots)? 0 : -1;
 }

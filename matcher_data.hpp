@@ -139,45 +139,46 @@ public:
     unsigned int select_count (const Flux::Jobspec::Resource &resource,
                                unsigned int qc) const
     {
-        unsigned int count = resource.count.max;
-        if (count < resource.count.min || resource.count.min > qc)
+        if (resource.count.min > resource.count.max
+            || resource.count.min > qc)
             return 0;
+
+        unsigned int count = 0;
+        unsigned int cur = resource.count.min;
 
         switch (resource.count.oper) {
         case '+':
-            while (count > qc)
-                count -= resource.count.operand;
+            while (cur <= qc && cur <= resource.count.max) {
+                count = cur;
+                cur += resource.count.operand;
+            }
             break;
         case '*':
-            while (count > qc)
-                count /= resource.count.operand;
+            while (cur <= qc && cur <= resource.count.max) {
+                count = cur;
+                cur *= resource.count.operand;
+            }
             break;
         case '^':
-            while (count > qc)
-                count = prev_pwr (resource.count.min,
-                                  count, resource.count.operand);
+            if (resource.count.operand < 2)
+                count = cur;
+            else {
+                while (cur <= qc && cur <= resource.count.max) {
+                    unsigned int base = cur;
+                    count = cur;
+                    for (int i = 1;
+                         i < resource.count.operand; i++)
+                        cur *= base;
+                }
+            }
             break;
         default:
             break;
         }
-        return (count >= resource.count.min)? count : 0;
+        return count;
     }
-
 
 private:
-    const unsigned prev_pwr (unsigned min, unsigned count,
-                             unsigned operand) const
-    {
-       unsigned int i = min;
-       unsigned int sol = 0;
-       while (i < count) {
-           sol = i;
-           for (int j = 0; j < operand; j++)
-               i *= i;
-       }
-       return sol;
-    }
-
     std::string m_name;
     std::vector<subsystem_t> m_subsystems;
     multi_subsystemsS m_subsystems_map;
