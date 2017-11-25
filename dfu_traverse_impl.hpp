@@ -266,6 +266,7 @@ private:
 
     // Remove allocation or reservations
     int rem_subtree_plan (vtx_t u, int64_t jobid, const std::string &subsystem);
+    int rem_x_checker (vtx_t u, int64_t jobid);
     int rem_plan (vtx_t u, int64_t jobid);
     int rem_dfv (vtx_t u, int64_t jobid);
     int rem_upv (vtx_t u, int64_t jobid);

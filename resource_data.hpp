@@ -33,6 +33,14 @@
 namespace Flux {
 namespace resource_model {
 
+// We create an x_checker planner for each resource vertex for quick exclusivity
+// checking. We update the x_checker for all of the vertices involved in each
+// job allocation/reservation -- subtract 1 from x_checker planner for the
+// scheduled span. Any vertex with less than X_CHECKER_NJOBS available in its
+// x_checker cannot be exclusively allocated or reserved.
+const char * const X_CHECKER_JOBS_STR = "jobs";
+const int64_t X_CHECKER_NJOBS = 0x40000000;
+
 typedef std::string subsystem_t;
 typedef std::map<subsystem_t, std::string> multi_subsystems_t;
 typedef std::map<subsystem_t, std::set<std::string> > multi_subsystemsS;
@@ -84,9 +92,12 @@ struct schedule_t {
         allocations = o.allocations;
         reservations = o.reservations;
         plans = o.plans;
+        x_checker = o.x_checker;
 #if 0
         if (o.plans)
             plans = planner_copy (o.plans);
+        if (o.x_checker)
+            x_checker = planner_copy (o.x_checker);
 #endif
     }
     schedule_t &operator= (const schedule_t &o)
@@ -95,10 +106,12 @@ struct schedule_t {
         allocations = o.allocations;
         reservations = o.reservations;
         plans = o.plans;
-
+        x_checker = o.x_checker;
 #if 0
         if (o.plans)
             plans = planner_copy (o.plans);
+        if (o.x_checker)
+            x_checker = planner_copy (o.x_checker);
 #endif
         return *this;
     }
@@ -106,7 +119,9 @@ struct schedule_t {
     std::map<int64_t, int64_t> tags;
     std::map<int64_t, int64_t> allocations;
     std::map<int64_t, int64_t> reservations;
+    std::map<int64_t, int64_t> x_spans;
     planner_t *plans = NULL;
+    planner_t *x_checker = NULL;
 };
 
 /*! Base type to organize the data supporting scheduling infrastructure's

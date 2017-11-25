@@ -108,19 +108,19 @@ bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
         // TODO: May need a bit better scheme to ensure subtree planners are always
         // updated. Do make sure you will keep track of a resource type that always
         // presence at the fringes of the tree
-        p = (*m_graph)[u].idata.subplans[s];
+
+        p = (*m_graph)[u].schedule.x_checker;
         if (resource.exclusive == Jobspec::tristate_t::TRUE) {
             size_t len = planner_resources_len (p);
-            int64_t *resources = (int64_t *)malloc (len * sizeof (int64_t));
-            planner_avail_resources_array_during (p, meta.at, meta.duration, resources, len);
-            for (int i = 0; i < len; i++) {
-                if (resources[i] < planner_resource_total_at (p, i)) {
-                    rc = true;
-                    break;
-                }
-           }
+            int64_t jobs = planner_avail_resources_during_by_type (p, meta.at,
+                               meta.duration, X_CHECKER_JOBS_STR);
+            if (jobs < X_CHECKER_NJOBS) {
+                rc = true;
+                break;
+            } // TODO: handle -1 case
         }
 
+        p = (*m_graph)[u].idata.subplans[s];
         // Prune by the subtree planner quantities
         if (resource.user_data.empty ())
             continue;
@@ -582,6 +582,11 @@ int dfu_impl_t::updcore (vtx_t u, const subsystem_t &s, unsigned int needs,
                 (*m_graph)[u].schedule.reservations[meta.jobid] = span;
         }
 
+        planner_t *x_checkers = (*m_graph)[u].schedule.x_checker;
+        const uint64_t njobs = 1;
+        span = planner_add_span (x_checkers, meta.at, meta.duration, &njobs, 1);
+        (*m_graph)[u].schedule.x_spans[meta.jobid] = span;
+
         planner_t *subtree_plan = (*m_graph)[u].idata.subplans[s];
         if (subtree_plan && !dfu.empty ()) {
             vector<uint64_t> aggregate;
@@ -634,6 +639,7 @@ int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
                 emit_edge (*ei);
         }
     }
+
     (*m_graph)[u].idata.colors[dom] = m_color.black (m_color_base);
 
     return updcore (u, dom, needs, excl, n_plans, meta, dfu, to_parent);
@@ -673,6 +679,27 @@ done:
     return rc;
 }
 
+int dfu_impl_t::rem_x_checker (vtx_t u, int64_t jobid)
+{
+    int rc = 0;
+    int64_t span = -1;
+    if ((*m_graph)[u].schedule.x_spans.find (jobid)
+        != (*m_graph)[u].schedule.x_spans.end ()) {
+        span = (*m_graph)[u].schedule.x_spans[jobid];
+        (*m_graph)[u].schedule.x_spans.erase (jobid);
+    }
+    if (span != -1) {
+        planner_t *x_checker = (*m_graph)[u].schedule.x_checker;
+        if (x_checker == NULL) {
+            rc = -1;
+            goto done;
+        }
+        rc = planner_rem_span (x_checker, span);
+    }
+done:
+    return rc;
+}
+
 int dfu_impl_t::rem_subtree_plan (vtx_t u, int64_t jobid,
                                   const string &subsystem)
 {
@@ -704,6 +731,8 @@ int dfu_impl_t::rem_dfv (vtx_t u, int64_t jobid)
         == (*m_graph)[u].schedule.tags.end ())
         goto done;
     (*m_graph)[u].schedule.tags.erase (jobid);
+    if ( (rc = rem_x_checker (u, jobid)) != 0)
+        goto done;
     if ( (rc = rem_plan (u, jobid)) != 0)
         goto done;
     if ( (rc = rem_subtree_plan (u, jobid, dom)) != 0)
@@ -845,10 +874,12 @@ void dfu_impl_t::prime (vector<Resource> &resources,
     for (auto &resource : resources) {
         // Use minimum requirement because you don't want to prune search
         // as far as a subtree satisfies the minimum requirement
-        accum_if (subsystem, resource.type, resource.count.min, to_parent);
+        accum_if (subsystem, resource.type, resource.count.min,
+                  to_parent);
         prime (resource.with, resource.user_data);
         for (auto &aggregate : resource.user_data)
-            accum_if (subsystem, aggregate.first, aggregate.second, to_parent);
+            accum_if (subsystem, aggregate.first,
+                      resource.count.min * aggregate.second, to_parent);
     }
 }
 

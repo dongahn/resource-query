@@ -197,6 +197,11 @@ vtx_t dfs_emitter_t::emit_vertex (ggv_t u, gge_t e, const gg_t &recipe,
     const uint64_t avail = recipe[u].size;
     planner_t *plans = planner_new (0, INT64_MAX, &avail, res_types, 1);
     db.resource_graph[v].schedule.plans = plans;
+
+    const char *jobs = X_CHECKER_JOBS_STR;
+    const uint64_t njobs = X_CHECKER_NJOBS;
+    planner_t *x_checker = planner_new (0, INT64_MAX, &njobs, &jobs, 1);
+    db.resource_graph[v].schedule.x_checker = x_checker;
     db.resource_graph[v].id = id;
     db.resource_graph[v].name = recipe[u].basename + istr;
     db.resource_graph[v].paths[ssys] = pref + "/" + db.resource_graph[v].name;

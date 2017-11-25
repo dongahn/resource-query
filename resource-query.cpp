@@ -395,10 +395,8 @@ static void subtree_plan_types (set<string> &aut)
 {
     // scheduler-driven aggregate-updates optimization is configured with
     // the following resource types.
-    aut.insert ("node");
+    // TODO: we can only support one resource type for this scheme for now
     aut.insert ("core");
-    aut.insert ("gpu");
-    aut.insert ("memory");
 }
 
 int main (int argc, char *argv[])
