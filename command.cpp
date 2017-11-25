@@ -78,6 +78,18 @@ static void get_jobstate_str (job_state_t state, string &mode)
     return;
 }
 
+static int do_remove (resource_context_t *ctx, int64_t jobid)
+{
+    int rc = -1;
+    if ((rc = ctx->traverser.remove ((int64_t)jobid)) == 0) {
+        if (ctx->jobs.find (jobid) != ctx->jobs.end ()) {
+           job_info_t *info = ctx->jobs[jobid];
+           info->state = job_state_t::CANCELLED;
+        }
+    }
+    return rc;
+}
+
 static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
                                 string &jobspec_fn, bool matched, int64_t at,
                                 double elapse)
@@ -162,24 +174,25 @@ int cmd_cancel (resource_context_t *ctx, vector<string> &args)
         cerr << "ERROR: malformed command" << endl;
         return 0;
     }
+
+    int rc = -1;
     string jobid_str = args[1];
     uint64_t jobid = (uint64_t)std::strtoll (jobid_str.c_str (), NULL, 10);
+
     if (ctx->allocations.find (jobid) != ctx->allocations.end ()) {
-        ctx->allocations.erase (jobid);
+        if ( (rc = do_remove (ctx, jobid)) == 0)
+            ctx->allocations.erase (jobid);
     } else if (ctx->reservations.find (jobid) != ctx->reservations.end ()) {
-        ctx->reservations.erase (jobid);
+        if ( (rc = do_remove (ctx, jobid)) == 0)
+            ctx->reservations.erase (jobid);
     } else {
         cerr << "ERROR: nonexistent job " << jobid << endl;
         goto done;
     }
 
-    if (ctx->traverser.remove ((int64_t)jobid) == 0) {
-        if (ctx->jobs.find (jobid) != ctx->jobs.end ()) {
-           job_info_t *info = ctx->jobs[jobid];
-           info->state = job_state_t::CANCELLED;
-        }
-    } else {
+    if (rc != 0) {
         cerr << "ERROR: error encountered while removing job " << jobid << endl;
+        cerr << "ERROR: " << strerror (errno) << endl;
     }
 
 done:

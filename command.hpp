@@ -28,6 +28,7 @@
 #include "resource_graph.hpp"
 #include "resource_gen.hpp"
 #include "dfu_traverse.hpp"
+#include <cerrno>
 #include <vector>
 #include <map>
 
