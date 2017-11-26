@@ -127,15 +127,15 @@ int dfu_impl_t::by_excl (const jobmeta_t &meta, const std::string &s, vtx_t u,
         p = (*m_graph)[u].schedule.x_checker;
         njobs = planner_avail_resources_during_by_type (p, at, duration,
                                                         X_CHECKER_JOBS_STR);
-        if (njobs < X_CHECKER_NJOBS) {
-            goto done;
-        } else if (njobs == -1) {
+        if (njobs == -1) {
             m_err_msg += "by_excl: planner_avail_resources_during returned -1. ";
             if (errno != 0) {
                 m_err_msg += strerror (errno);
                 m_err_msg += " ";
                 errno = 0;
             }
+            goto done;
+        } else if (njobs < X_CHECKER_NJOBS) {
             goto done;
         }
     }
@@ -191,8 +191,6 @@ int dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
         if ( (rc = by_excl (meta, s, u, resource)) == -1)
             break;
         // Prune by the subtree planner quantities
-        if (resource.user_data.empty ())
-            break;
         if ( (rc = by_subplan (meta, s, u, resource)) == -1)
             break;
     }
