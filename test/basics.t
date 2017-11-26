@@ -86,7 +86,7 @@ test_expect_success "${test009_desc}" '
 '
 
 cmds010="${cmd_dir}/test001.5x.cmds"
-test010_desc="match allocate 5 jobspecs instead - last one must fail (pol=hi)"
+test010_desc="match allocate 5 jobspecs instead - last one must fail (pol=low)"
 test_expect_success "${test010_desc}" '
     ${query} -G ${grugs} -S CA -P low < ${cmds010} > 010.R.out &&
     test_cmp 010.R.out ${exp_dir}/010.R.out
@@ -101,7 +101,7 @@ test_expect_success "${test011_desc}" '
 
 # Note that the memory pool granularity is 2GB
 cmds012="${cmd_dir}/test001.3x.node1.slot1.socket2.c5-g1-m6.cmds"
-test012_desc="match allocate 3 jobspecs with 1 slot: 2 sockets (pol=hi)"
+test012_desc="match allocate 3 jobspecs with 1 slot: 2 sockets (pol=low)"
 test_expect_success "${test012_desc}" '
     ${query} -G ${grugs} -S CA -P low < ${cmds012} > 012.R.out &&
     test_cmp 012.R.out ${exp_dir}/012.R.out
@@ -122,16 +122,16 @@ test_expect_success "${test014_desc}" '
 '
 
 cmds015="${cmd_dir}/test001.9x.slot1.core8-memory2.cmds"
-test015_desc="match allocate 9 jobspecs with 1 slot (8c,2m) (pol=hi)"
+test015_desc="match allocate 9 jobspecs with 1 slot (8c,2m) (pol=low)"
 test_expect_success "${test015_desc}" '
-    ${query} -G ${grugs} -S CA -P high < ${cmds015} > 015.R.out &&
+    ${query} -G ${grugs} -S CA -P low < ${cmds015} > 015.R.out &&
     test_cmp 015.R.out ${exp_dir}/015.R.out
 '
 
 cmds016="${cmd_dir}/test001.satisfiability.cmds"
-test016_desc="36 core (satisfiable) cores and 37 cores (unsatisfiable) (pol=hi)"
+test016_desc="36 core (satisfiable) cores and 37 cores (unsatisfiable) (pol=low)"
 test_expect_success "${test016_desc}" '
-    ${query} -G ${grugs} -S CA -P high < ${cmds016} > 016.R.out &&
+    ${query} -G ${grugs} -S CA -P low < ${cmds016} > 016.R.out &&
     test_cmp 016.R.out ${exp_dir}/016.R.out
 '
 
