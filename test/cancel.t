@@ -36,16 +36,16 @@ test_expect_success "${test002_desc}" '
 #
 
 cmds003="${cmd_dir}/test008.cancel.cmds"
-test003_desc="allocate or reserve 17 jobs, cancel 3 (pol=hi)"
+test003_desc="allocate or reserve 17 jobs, cancel 3 (pol=low)"
 test_expect_success "${test003_desc}" '
     ${query} -G ${grugs} -S CA -P low < ${cmds003} > 003.R.out &&
     test_cmp 003.R.out ${exp_dir}/003.R.out
 '
 
 cmds004="${cmd_dir}/test008.cancel2.cmds"
-test004_desc="allocate or reserve 17 jobs, cancel all (pol=hi)"
+test004_desc="allocate or reserve 17 jobs, cancel all (pol=low)"
 test_expect_success "${test004_desc}" '
-    ${query} -G ${grugs} -S CA -P high < ${cmds004} > 004.R.out &&
+    ${query} -G ${grugs} -S CA -P low < ${cmds004} > 004.R.out &&
     test_cmp 004.R.out ${exp_dir}/004.R.out
 '
 
