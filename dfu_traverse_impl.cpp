@@ -184,15 +184,12 @@ int dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
     // if rack has been allocated exclusively, no reason to descend further.
     if ( (rc = by_avail (meta, s, u, resources)) == -1)
         goto done;
-
     for (auto &resource : resources) {
         if ((*m_graph)[u].type != resource.type)
             continue;
-
         // Prune by exclusivity checker
         if ( (rc = by_excl (meta, s, u, resource)) == -1)
             break;
-
         // Prune by the subtree planner quantities
         if (resource.user_data.empty ())
             break;
@@ -372,34 +369,31 @@ int dfu_impl_t::aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &aux,
 {
     int rc = -1;
     scoring_api_t upv;
-    bool x_in = *excl;
+    int64_t avail = 0, at = meta.at;
+    uint64_t duration = meta.duration;
     planner_t *p = NULL;
+    bool x_in = *excl;
+    bool leaf = true;
 
-    if (prune (meta, x_in, aux, u, resources) == -1)
-        goto done;
-    if ((rc = m_match->aux_discover_vtx (u, aux, resources, *m_graph)) != 0)
+    if ((prune (meta, x_in, aux, u, resources) == -1)
+        || (m_match->aux_discover_vtx (u, aux, resources, *m_graph)) != 0)
         goto done;
 
-    // BEGIN: coloring and recursion
     (*m_graph)[u].idata.colors[aux] = m_color.gray (m_color_base);
-    if (u != (*m_roots)[aux]) {
-        graph_traits<f_resource_graph_t>::out_edge_iterator ei, ei_end;
-        for (tie (ei, ei_end) = out_edges (u, *m_graph); ei != ei_end; ++ei) {
-            if (!in_subsystem (*ei, aux) || stop_explore (*ei, aux))
-                continue;
-            bool x_inout = x_in;
-            vtx_t tgt = target (*ei, *m_graph);
-            if ((rc = aux_upv (meta, tgt, aux, resources, &x_inout, upv)) != 0)
-                goto done;
-        }
-    }
+    if (u != (*m_roots)[aux])
+        explore (meta, u, aux, resources, excl, &leaf, visit_t::UPV, upv);
     (*m_graph)[u].idata.colors[aux] = m_color.black (m_color_base);
-    // END: coloring and recursion
 
     p = (*m_graph)[u].schedule.plans;
-    if (planner_avail_resources_during (p, meta.at, meta.duration, 0) == 0)
+    if ( (avail = planner_avail_resources_during (p, at, duration, 0)) == 0) {
         goto done;
-    if ((rc = m_match->aux_finish_vtx (u, aux, resources, *m_graph, upv)) != 0)
+    } else if (avail == -1) {
+        m_err_msg += "aux_upv: planner_avail_resources_during returned -1. ";
+        m_err_msg += strerror (errno);
+        errno = 0;
+        goto done;
+    }
+    if (m_match->aux_finish_vtx (u, aux, resources, *m_graph, upv) != 0)
         goto done;
     if ((rc = resolve (upv, to_parent)) != 0)
         goto done;
@@ -493,41 +487,44 @@ int dfu_impl_t::dom_dfv (const jobmeta_t &meta, vtx_t u,
 {
     int rc = -1;
     match_kind_t sm;
-    uint64_t avail = 0;
+    int64_t avail = 0, at = meta.at;
+    uint64_t duration = meta.duration;
     bool leaf = true;
     bool x_in = *excl || exclusivity (resources, u);
     bool x_inout = x_in;
     scoring_api_t dfu;
     planner_t *p = NULL;
     const string &dom = m_match->dom_subsystem ();
-    graph_traits<f_resource_graph_t>::out_edge_iterator ei, ei_end;
-
     const vector<Resource> &next = test (u, resources, &sm);
-    if (prune (meta, x_in, dom, u, resources) == -1)
-        goto done;
-    if ((rc = m_match->dom_discover_vtx (u, dom, resources, *m_graph)) != 0)
+
+    if ((prune (meta, x_in, dom, u, resources) == -1)
+        || (m_match->dom_discover_vtx (u, dom, resources, *m_graph) != 0))
         goto done;
 
-    // BEGIN: coloring and recursion
     (*m_graph)[u].idata.colors[dom] = m_color.gray (m_color_base);
     if (sm == match_kind_t::SLOT_MATCH)
-        rc = dom_slot (meta, u, next, &x_inout, &leaf, dfu);
+        dom_slot (meta, u, next, &x_inout, &leaf, dfu);
     else
-        rc = dom_exp (meta, u, next, &x_inout, &leaf, dfu);
+        dom_exp (meta, u, next, &x_inout, &leaf, dfu);
     *excl = x_in;
     (*m_graph)[u].idata.colors[dom] = m_color.black (m_color_base);
-    // END: coloring and recursion
 
     p = (*m_graph)[u].schedule.plans;
-    avail = planner_avail_resources_during (p, meta.at, meta.duration, 0);
-    if (avail == 0)
+    if ( (avail = planner_avail_resources_during (p, at, duration, 0)) == 0) {
         goto done;
+    } else if (avail == -1) {
+        m_err_msg += "dom_dfv: planner_avail_resources_during returned -1. ";
+        m_err_msg += strerror (errno);
+        errno = 0;
+        goto done;
+    }
     if (m_match->dom_finish_vtx (u, dom, resources, *m_graph, dfu) != 0)
         goto done;
     if ((rc = resolve (dfu, to_parent)) != 0)
         goto done;
     to_parent.set_avail (avail);
     to_parent.set_overall_score (dfu.overall_score ());
+
 done:
     return rc;
 }
