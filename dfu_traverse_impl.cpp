@@ -55,23 +55,28 @@ void dfu_impl_t::tick_color_base ()
     m_color_base = m_color.reset (m_color_base);
 }
 
-bool dfu_impl_t::in_subsystem (edg_t e, const subsystem_t &s) const
+bool dfu_impl_t::in_subsystem (edg_t e, const subsystem_t &subsystem) const
 {
-    return ((*m_graph)[e].idata.member_of.find (s)
+    return ((*m_graph)[e].idata.member_of.find (subsystem)
                 != (*m_graph)[e].idata.member_of.end ());
 }
 
-bool dfu_impl_t::stop_explore (edg_t e, const subsystem_t &s) const
+bool dfu_impl_t::stop_explore (edg_t e, const subsystem_t &subsystem) const
 {
+    // Return true if the target vertex has been visited (forward: black)
+    // or being visited (cycle: gray).
     vtx_t u = target (e, *m_graph);
-    return ((*m_graph)[u].idata.colors[s] == m_color.gray (m_color_base)
-            || (*m_graph)[u].idata.colors[s] == m_color.black (m_color_base));
-
+    return (((*m_graph)[u].idata.colors[subsystem]
+                 == m_color.gray (m_color_base))
+            || ((*m_graph)[u].idata.colors[subsystem]
+                 == m_color.black (m_color_base)));
 }
 
-bool dfu_impl_t::exclusivity (const std::vector<Jobspec::Resource> &resources,
+bool dfu_impl_t::exclusivity (const vector<Jobspec::Resource> &resources,
                               vtx_t u)
 {
+    // If one of the resources matches with the visiting vertex, u
+    // and it requested exclusive access, return true;
     bool exclusive = false;
     for (auto &resource: resources) {
         if (resource.type == (*m_graph)[u].type)
@@ -81,59 +86,120 @@ bool dfu_impl_t::exclusivity (const std::vector<Jobspec::Resource> &resources,
     return exclusive;
 }
 
-bool dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
-                        const std::string &s, vtx_t u,
-                        const std::vector<Jobspec::Resource> &resources)
+int dfu_impl_t::by_avail (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                          const std::vector<Jobspec::Resource> &resources)
 {
-    bool rc = false;
+    int rc = -1;
+    int64_t avail = -1;
     planner_t *p = NULL;
-    int64_t avail;
+    int64_t at = meta.at;
+    uint64_t duration = meta.duration;
 
     // Prune by the visiting resource vertex's availability
-    // if rack has been allocated exclusively, no reason to descend further
+    // if rack has been allocated exclusively, no reason to descend further.
     p = (*m_graph)[u].schedule.plans;
-    avail = planner_avail_resources_during (p, meta.at, meta.duration, 0);
-    if (avail == 0) {
-        rc = true;
+    if ((avail = planner_avail_resources_during (p, at, duration, 0)) == 0) {
+        goto done;
+    } else if (avail == -1) {
+        m_err_msg += "by_avail: planner_avail_resources_during returned -1. ";
+        if (errno != 0) {
+            m_err_msg += strerror (errno);
+            m_err_msg += " ";
+            errno = 0;
+        }
         goto done;
     }
+    rc = 0;
+
+done:
+    return rc;
+}
+
+int dfu_impl_t::by_excl (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                         const Jobspec::Resource &resource)
+{
+    int rc = -1;
+    planner_t *p = NULL;
+    int64_t at = meta.at;
+    int64_t njobs = -1;
+    uint64_t duration = meta.duration;
+    if (resource.exclusive == Jobspec::tristate_t::TRUE) {
+        p = (*m_graph)[u].schedule.x_checker;
+        njobs = planner_avail_resources_during_by_type (p, at, duration,
+                                                        X_CHECKER_JOBS_STR);
+        if (njobs < X_CHECKER_NJOBS) {
+            goto done;
+        } else if (njobs == -1) {
+            m_err_msg += "by_excl: planner_avail_resources_during returned -1. ";
+            if (errno != 0) {
+                m_err_msg += strerror (errno);
+                m_err_msg += " ";
+                errno = 0;
+            }
+            goto done;
+        }
+    }
+    rc = 0;
+
+done:
+    return rc;
+}
+
+int dfu_impl_t::by_subplan (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                            const Jobspec::Resource &resource)
+{
+    int rc = -1;
+    size_t len = 0;
+    int64_t at = meta.at;
+    uint64_t duration = meta.duration;
+    vector<uint64_t> aggs;
+    planner_t *p = (*m_graph)[u].idata.subplans[s];
+
+    count (p, resource.user_data, aggs);
+    if (aggs.empty ()) {
+        rc = 0;
+        goto done;
+    }
+
+    len = aggs.size ();
+    if ((rc = planner_avail_during (p, at, duration, &(aggs[0]), len)) == -1) {
+        if (errno != 0) {
+            m_err_msg += "by_subplan: planner_avail_during returned -1. ";
+            m_err_msg += strerror (errno);
+            errno = 0;
+        }
+        goto done;
+    }
+
+done:
+    return rc;
+}
+
+int dfu_impl_t::prune (const jobmeta_t &meta, bool exclusive,
+                       const std::string &s, vtx_t u,
+                       const std::vector<Jobspec::Resource> &resources)
+{
+    int rc = 0;
+    // Prune by the visiting resource vertex's availability
+    // if rack has been allocated exclusively, no reason to descend further.
+    if ( (rc = by_avail (meta, s, u, resources)) == -1)
+        goto done;
 
     for (auto &resource : resources) {
         if ((*m_graph)[u].type != resource.type)
             continue;
 
-        // Note: we don't do prune by tag because allocation vs. reservation
-        // make what to prune a bit complex without clear benfit
-        // We instead perform exclusivity check using subtree planner.
-        // TODO: May need a bit better scheme to ensure subtree planners are always
-        // updated. Do make sure you will keep track of a resource type that always
-        // presence at the fringes of the tree
+        // Prune by exclusivity checker
+        if ( (rc = by_excl (meta, s, u, resource)) == -1)
+            break;
 
-        p = (*m_graph)[u].schedule.x_checker;
-        if (resource.exclusive == Jobspec::tristate_t::TRUE) {
-            size_t len = planner_resources_len (p);
-            int64_t jobs = planner_avail_resources_during_by_type (p, meta.at,
-                               meta.duration, X_CHECKER_JOBS_STR);
-            if (jobs < X_CHECKER_NJOBS) {
-                rc = true;
-                break;
-            } // TODO: handle -1 case
-        }
-
-        p = (*m_graph)[u].idata.subplans[s];
         // Prune by the subtree planner quantities
         if (resource.user_data.empty ())
-            continue;
-        vector<uint64_t> aggs;
-        count (p, resource.user_data, aggs);
-        if (aggs.empty ())
-            continue;
-        size_t len = aggs.size ();
-        if (planner_avail_during (p, meta.at, meta.duration, &(aggs[0]), len)) {
-            rc = true;
             break;
-        }
+        if ( (rc = by_subplan (meta, s, u, resource)) == -1)
+            break;
     }
+
 done:
     return rc;
 }
@@ -159,7 +225,9 @@ void dfu_impl_t::match (vtx_t u, const vector<Resource> &resources,
                     if (c_resource.type == "slot")
                         *slot_resource = &c_resource;
             }
-            break; // limitations: jobspec must not have same type at same level
+            // Limitations: jobspec must not have same type at same level
+            // Please read README.md
+            break;
         } else if (resource.type == "slot") {
             *slot_resource = &resource;
             break;
@@ -170,15 +238,15 @@ void dfu_impl_t::match (vtx_t u, const vector<Resource> &resources,
 bool dfu_impl_t::slot_match (vtx_t u, const Resource *slot_resources)
 {
     bool slot_match = true;
-    graph_traits<f_resource_graph_t>::out_edge_iterator ei, ei_end;
+    graph_traits<f_resource_graph_t>::out_edge_iterator ei, eie;
     if (slot_resources) {
         for (auto &c_resource : (*slot_resources).with) {
-            for (tie (ei, ei_end) = out_edges (u, *m_graph); ei != ei_end; ++ei) {
+            for (tie (ei, eie) = out_edges (u, *m_graph); ei != eie; ++ei) {
                 vtx_t tgt = target (*ei, *m_graph);
                 if ((*m_graph)[tgt].type == c_resource.type)
-                    break; // found the destination resource type of the slot
+                    break; // found the target resource type of the slot
             }
-            if (ei == ei_end) {
+            if (ei == eie) {
                 slot_match = false;
                 break;
             }
@@ -307,11 +375,12 @@ int dfu_impl_t::aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &aux,
     bool x_in = *excl;
     planner_t *p = NULL;
 
-    if (prune (meta, x_in, aux, u, resources))
+    if (prune (meta, x_in, aux, u, resources) == -1)
         goto done;
     if ((rc = m_match->aux_discover_vtx (u, aux, resources, *m_graph)) != 0)
         goto done;
 
+    // BEGIN: coloring and recursion
     (*m_graph)[u].idata.colors[aux] = m_color.gray (m_color_base);
     if (u != (*m_roots)[aux]) {
         graph_traits<f_resource_graph_t>::out_edge_iterator ei, ei_end;
@@ -325,6 +394,7 @@ int dfu_impl_t::aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &aux,
         }
     }
     (*m_graph)[u].idata.colors[aux] = m_color.black (m_color_base);
+    // END: coloring and recursion
 
     p = (*m_graph)[u].schedule.plans;
     if (planner_avail_resources_during (p, meta.at, meta.duration, 0) == 0)
@@ -353,7 +423,7 @@ int dfu_impl_t::dom_exp (const jobmeta_t &meta, vtx_t u,
 }
 
 int dfu_impl_t::cnt_slot (const vector<Resource> &slot_shape,
-                                 scoring_api_t &dfu_slot)
+                          scoring_api_t &dfu_slot)
 {
     unsigned int qc = 0;
     unsigned int fit = 0;
@@ -433,7 +503,7 @@ int dfu_impl_t::dom_dfv (const jobmeta_t &meta, vtx_t u,
     graph_traits<f_resource_graph_t>::out_edge_iterator ei, ei_end;
 
     const vector<Resource> &next = test (u, resources, &sm);
-    if (prune (meta, x_in, dom, u, resources))
+    if (prune (meta, x_in, dom, u, resources) == -1)
         goto done;
     if ((rc = m_match->dom_discover_vtx (u, dom, resources, *m_graph)) != 0)
         goto done;
@@ -607,7 +677,7 @@ int dfu_impl_t::upd_upv (vtx_t u, const subsystem_t &subsystem,
                          unsigned int needs, bool excl, const jobmeta_t &meta,
                          map<string, int64_t> &to_parent)
 {
-    //TODO: update resources on the UPV direction
+    //NYI: update resources on the UPV direction
     return 0;
 }
 
@@ -641,13 +711,12 @@ int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
     }
 
     (*m_graph)[u].idata.colors[dom] = m_color.black (m_color_base);
-
     return updcore (u, dom, needs, excl, n_plans, meta, dfu, to_parent);
 }
 
 int dfu_impl_t::rem_upv (vtx_t u, int64_t jobid)
 {
-    // NYI
+    // NYI: remove data for upwalk
     return 0;
 }
 
@@ -781,6 +850,7 @@ dfu_impl_t::dfu_impl_t (const dfu_impl_t &o)
     m_roots = o.m_roots;
     m_graph = o.m_graph;
     m_match = o.m_match;
+    m_err_msg = o.m_err_msg;
 }
 
 dfu_impl_t &dfu_impl_t::operator= (const dfu_impl_t &o)
@@ -792,6 +862,7 @@ dfu_impl_t &dfu_impl_t::operator= (const dfu_impl_t &o)
     m_roots = o.m_roots;
     m_graph = o.m_graph;
     m_match = o.m_match;
+    m_err_msg = o.m_err_msg;
     return *this;
 }
 

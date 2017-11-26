@@ -79,6 +79,8 @@ public:
     const f_resource_graph_t *get_graph () const;
     const std::map<subsystem_t, vtx_t> *get_roots () const;
     const dfu_match_cb_t *get_match_cb () const;
+    const std::string &err_message () const;
+
     void set_graph (f_resource_graph_t *g);
     void set_roots (std::map<subsystem_t, vtx_t> *roots);
     void set_match_cb (dfu_match_cb_t *m);
@@ -199,14 +201,23 @@ private:
     bool in_subsystem (edg_t e, const subsystem_t &subsystem) const;
     bool stop_explore (edg_t e, const subsystem_t &subsystem) const;
 
-    bool prune (const jobmeta_t &meta, bool excl, const std::string &subsystem,
-                vtx_t u, const std::vector<Jobspec::Resource> &resources);
+    /*! Various pruning methods
+     */
+    int by_avail (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                  const std::vector<Jobspec::Resource> &resources);
+    int by_excl (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                 const Jobspec::Resource &resource);
+    int by_subplan (const jobmeta_t &meta, const std::string &s, vtx_t u,
+                    const Jobspec::Resource &resource);
+    int prune (const jobmeta_t &meta, bool excl, const std::string &subsystem,
+               vtx_t u, const std::vector<Jobspec::Resource> &resources);
 
     planner_t *subtree_plan (vtx_t u, std::vector<uint64_t> &avail,
                              std::vector<const char *> &types);
 
-    // Test various matching conditions between jobspec and graph
-    // including slot match
+    /*! Test various matching conditions between jobspec and graph
+     * including slot match
+     */
     void match (vtx_t u, const std::vector<Jobspec::Resource> &resources,
                 const Jobspec::Resource **slot_resource,
                 const Jobspec::Resource **match_resource);
@@ -285,6 +296,7 @@ private:
     std::map<subsystem_t, vtx_t> *m_roots = NULL;
     f_resource_graph_t *m_graph = NULL;
     dfu_match_cb_t *m_match = NULL;
+    std::string m_err_msg = "";
 }; // the end of class dfu_impl_t
 
 template <class lookup_t>
