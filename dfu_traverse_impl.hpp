@@ -243,7 +243,7 @@ private:
     // Explore for resource matching -- only DFV or UPV
     int explore (const jobmeta_t &meta, vtx_t u, const subsystem_t &subsystem,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
-                 bool *leaf, visit_t direction, scoring_api_t &to_parent);
+                 visit_t direction, scoring_api_t &to_parent);
     int aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &subsystem,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
                  scoring_api_t &to_parent);
@@ -251,10 +251,10 @@ private:
                   scoring_api_t &dfu_slot);
     int dom_slot (const jobmeta_t &meta, vtx_t u,
                   const std::vector<Jobspec::Resource> &resources, bool *excl,
-                  bool *leaf, scoring_api_t &dfu);
+                  scoring_api_t &dfu);
     int dom_exp (const jobmeta_t &meta, vtx_t u,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
-                 bool *leaf, scoring_api_t &to_parent);
+                 scoring_api_t &to_parent);
     int dom_dfv (const jobmeta_t &meta, vtx_t u,
                  const std::vector<Jobspec::Resource> &resources, bool *excl,
                  scoring_api_t &to_parent);

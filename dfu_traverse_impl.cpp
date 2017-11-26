@@ -323,7 +323,7 @@ int dfu_impl_t::prime_exp (const subsystem_t &subsystem, vtx_t u,
 int dfu_impl_t::explore (const jobmeta_t &meta, vtx_t u,
                          const subsystem_t &subsystem,
                          const vector<Resource> &resources, bool *excl,
-                         bool *leaf, visit_t direction, scoring_api_t &dfu)
+                         visit_t direction, scoring_api_t &dfu)
 {
     int rc = -1;
     int rc2 = -1;
@@ -332,8 +332,6 @@ int dfu_impl_t::explore (const jobmeta_t &meta, vtx_t u,
     for (tie (ei, ei_end) = out_edges (u, *m_graph); ei != ei_end; ++ei) {
         if (!in_subsystem (*ei, subsystem) || stop_explore (*ei, subsystem))
             continue;
-        if (subsystem == dom)
-            *leaf = false;
 
         bool x_inout = *excl;
         vtx_t tgt = target (*ei, *m_graph);
@@ -373,7 +371,6 @@ int dfu_impl_t::aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &aux,
     uint64_t duration = meta.duration;
     planner_t *p = NULL;
     bool x_in = *excl;
-    bool leaf = true;
 
     if ((prune (meta, x_in, aux, u, resources) == -1)
         || (m_match->aux_discover_vtx (u, aux, resources, *m_graph)) != 0)
@@ -381,7 +378,7 @@ int dfu_impl_t::aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &aux,
 
     (*m_graph)[u].idata.colors[aux] = m_color.gray (m_color_base);
     if (u != (*m_roots)[aux])
-        explore (meta, u, aux, resources, excl, &leaf, visit_t::UPV, upv);
+        explore (meta, u, aux, resources, excl, visit_t::UPV, upv);
     (*m_graph)[u].idata.colors[aux] = m_color.black (m_color_base);
 
     p = (*m_graph)[u].schedule.plans;
@@ -403,15 +400,15 @@ done:
 
 int dfu_impl_t::dom_exp (const jobmeta_t &meta, vtx_t u,
                          const vector<Resource> &resources,
-                         bool *excl, bool *leaf, scoring_api_t &dfu)
+                         bool *excl, scoring_api_t &dfu)
 {
     int rc = -1;
     const subsystem_t &dom = m_match->dom_subsystem ();
     for (auto &s : m_match->subsystems ()) {
         if (s == dom)
-            rc = explore (meta, u, s, resources, excl, leaf, visit_t::DFV, dfu);
+            rc = explore (meta, u, s, resources, excl, visit_t::DFV, dfu);
         else
-            rc = explore (meta, u, s, resources, excl, leaf, visit_t::UPV, dfu);
+            rc = explore (meta, u, s, resources, excl, visit_t::UPV, dfu);
     }
     return rc;
 }
@@ -439,7 +436,7 @@ int dfu_impl_t::cnt_slot (const vector<Resource> &slot_shape,
 
 int dfu_impl_t::dom_slot (const jobmeta_t &meta, vtx_t u,
                           const vector<Resource> &slot_shape,
-                          bool *excl, bool *leaf, scoring_api_t &dfu)
+                          bool *excl, scoring_api_t &dfu)
 {
     int rc;
     bool x_inout = true;
@@ -447,8 +444,8 @@ int dfu_impl_t::dom_slot (const jobmeta_t &meta, vtx_t u,
     unsigned int qual_num_slots = 0;
     const subsystem_t &dom = m_match->dom_subsystem ();
 
-    if ( (rc = explore (meta, u, dom, slot_shape, &x_inout, leaf,
-                        visit_t::DFV, dfu_slot)) != 0)
+    if ( (rc = explore (meta, u, dom, slot_shape,
+                        &x_inout, visit_t::DFV, dfu_slot)) != 0)
         goto done;
     if ((rc = m_match->dom_finish_slot (dom, dfu_slot)) != 0)
         goto done;
@@ -489,7 +486,6 @@ int dfu_impl_t::dom_dfv (const jobmeta_t &meta, vtx_t u,
     match_kind_t sm;
     int64_t avail = 0, at = meta.at;
     uint64_t duration = meta.duration;
-    bool leaf = true;
     bool x_in = *excl || exclusivity (resources, u);
     bool x_inout = x_in;
     scoring_api_t dfu;
@@ -503,9 +499,9 @@ int dfu_impl_t::dom_dfv (const jobmeta_t &meta, vtx_t u,
 
     (*m_graph)[u].idata.colors[dom] = m_color.gray (m_color_base);
     if (sm == match_kind_t::SLOT_MATCH)
-        dom_slot (meta, u, next, &x_inout, &leaf, dfu);
+        dom_slot (meta, u, next, &x_inout, dfu);
     else
-        dom_exp (meta, u, next, &x_inout, &leaf, dfu);
+        dom_exp (meta, u, next, &x_inout, dfu);
     *excl = x_in;
     (*m_graph)[u].idata.colors[dom] = m_color.black (m_color_base);
 
