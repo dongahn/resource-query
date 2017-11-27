@@ -537,14 +537,16 @@ int dfu_impl_t::resolve (vtx_t root, vector<Resource> &resources,
     if (m_match->dom_finish_graph (dom, resources, *m_graph, dfu) != 0)
         goto done;
 
+    *needs = 1; // if the root is not specified, assume we need 1
     for (auto &resource : resources) {
         if (resource.type == (*m_graph)[root].type) {
             qc = dfu.avail ();
             if ((count = m_match->select_count (resource, qc)) == 0)
                 goto done;
-            *needs = count;
+            *needs = count; // if the root is specified, give that much
         }
     }
+
     // resolve remaining unconstrained resource types
     for (auto &subsystem : m_match->subsystems ()) {
         vector<string> types;
