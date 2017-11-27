@@ -41,7 +41,19 @@ By contrast, `allocate` will simply not allocate resources if matching
 resources cannot be selected in the current resource state.
 
 The following command allocated the best-matching resources for the
-specification that test.jobspec contains.
+specification that test.jobspec contains. The output of an allocation
+or reservation is a reversed tree shape where the root appears at
+the last line. Each resource is annotated with the allocated or
+reserved count and exclusive (x) vs. shared (s) access modes. For example,
+`core31[1:x]` indicates that the 1 unit of `core31` has been exclusively
+allocated or reserved. Similary, `memory1[2:x]` shows that the 2
+units (i.e., GB) of `memory1` have been exclusive allocated. Please note
+that the granularity of exclusive allocation/reservation is
+the whole resource pool vertex, not anything less. So, if you want a more
+fined-grained exclusive memory allocation, you should first represent
+your memory pool vertices with smaller memory unit (e.g., 256MB).
+
+
 
 ```
 resource-query> match allocate test.jobspec
