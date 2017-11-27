@@ -67,7 +67,7 @@ resource-query> match allocate test.jobspec
       ------------socket1[1:x]
       ---------node1[1:s]
       ------rack0[1:s]
-      ---tiny0[0:s]
+      ---tiny0[1:s]
 INFO: =============================
 INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
@@ -102,7 +102,7 @@ resource-query> match allocate_orelse_reserve test.jobspec
       ------------socket1[1:x]
       ---------node1[1:s]
       ------rack0[1:s]
-      ---tiny0[0:s]
+      ---tiny0[1:s]
 INFO: =============================
 INFO: JOBID=3
 INFO: RESOURCES=RESERVED
@@ -115,11 +115,10 @@ test.jobspec:
 ```yaml
 version: 1
 resources:
-  - type: slot
-    count: 4
-    label: default
+  - type: node
+    count: 1
     with:
-      - type: node
+      - type: slot
         count: 1
         with:
           - type: socket
