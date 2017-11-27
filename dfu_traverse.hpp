@@ -50,9 +50,12 @@ public:
     const f_resource_graph_t *get_graph () const;
     const std::map<subsystem_t, vtx_t> *get_roots () const;
     const dfu_match_cb_t *get_match_cb () const;
+    const std::string &err_message () const;
+
     void set_graph (f_resource_graph_t *g);
     void set_roots (std::map<subsystem_t, vtx_t> *roots);
     void set_match_cb (dfu_match_cb_t *m);
+    void clear_err_message ();
 
     /*! Prime the resource graph with subtree plans. Assume resource graph,
      *  roots and match callback have already been registered. The subtree

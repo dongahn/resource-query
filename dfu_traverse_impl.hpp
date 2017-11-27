@@ -84,6 +84,7 @@ public:
     void set_graph (f_resource_graph_t *g);
     void set_roots (std::map<subsystem_t, vtx_t> *roots);
     void set_match_cb (dfu_match_cb_t *m);
+    void clear_err_message ();
 
     /*! Exclusive request? Return true if a resource in resources vector
      *  matches resource vertex u and its exclusivity field value is TRUE.
@@ -107,9 +108,8 @@ public:
      *
      *  \param subsystem depth-first walk on this subsystem graph for priming.
      *  \param u         visiting resource vertex.
-     *  \return          0 on success; -1 on error.
-     *                       EINVAL: invalid argument.
-     *                       ERANGE: some aggregate out of range.
+     *  \return          0 on success; -1 on error -- call err_message ()
+     *                   for detail.
      */
     int prime (const subsystem_t &subsystem, vtx_t u,
                std::map<std::string, int64_t> &to_parent);
@@ -165,10 +165,8 @@ public:
      *  \param exclusive true if exclusive access is requested for root.
      *  \param[out] needs
      *                   number of root resources requested.
-     *  \return          0 on success; -1 on error.
-     *                       EINVAL: invalid argument.
-     *                       ERANGE: planner detected an out-of-range value.
-     *                       ENOTSUP: internal error encountered.
+     *  \return          0 on success; -1 on error -- call err_message ()
+     *                   for detail.
      */
     int select (Jobspec::Jobspec &jobspec, vtx_t root, jobmeta_t &meta,
                 bool exclusive, unsigned int *needs);
@@ -180,7 +178,8 @@ public:
      *  \param meta      metadata on the job.
      *  \param needs     the number of root resources requested.
      *  \param excl      exclusive access requested.
-     *  \return          0 on success; -1 on error.
+     *  \return          0 on success; -1 on error -- -- call err_message ()
+     *                   for detail.
      */
     int update (vtx_t root, jobmeta_t &meta, unsigned int needs, bool excl);
 
@@ -264,10 +263,13 @@ private:
     int emit_vertex (vtx_t u, unsigned int needs, bool exclusive);
 
     // Update resource graph data store
-    int updcore (vtx_t u, const subsystem_t &subsystem, unsigned int needs,
-                 bool excl, int n, const jobmeta_t &meta,
-                 std::map<std::string, int64_t> &dfu,
-                 std::map<std::string, int64_t> &to_parent);
+    int upd_plan (vtx_t u, const subsystem_t &s, unsigned int needs,
+                  bool excl, const jobmeta_t &meta, int &n_p,
+                  std::map<std::string, int64_t> &to_parent);
+    int upd_sched (vtx_t u, const subsystem_t &subsystem, unsigned int needs,
+                   bool excl, int n, const jobmeta_t &meta,
+                   std::map<std::string, int64_t> &dfu,
+                   std::map<std::string, int64_t> &to_parent);
     int upd_upv (vtx_t u, const subsystem_t &subsystem, unsigned int needs,
                  bool excl, const jobmeta_t &meta,
                  std::map<std::string, int64_t> &to_parent);

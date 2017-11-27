@@ -29,6 +29,12 @@
 #include <boost/filesystem.hpp>
 #include "resource_gen_spec.hpp"
 
+extern "C" {
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+}
+
 using namespace std;
 using namespace boost;
 using namespace Flux::resource_model;

@@ -36,6 +36,12 @@
 #include "command.hpp"
 #include "dfu_match_id_based.hpp"
 
+extern "C" {
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+}
+
 using namespace std;
 using namespace boost;
 using namespace Flux::resource_model;

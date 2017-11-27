@@ -26,6 +26,12 @@
 #include <cstdlib>
 #include "dfu_traverse.hpp"
 
+extern "C" {
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+}
+
 using namespace std;
 using namespace Flux::resource_model;
 using namespace Flux::resource_model::detail;
@@ -115,6 +121,11 @@ const dfu_match_cb_t *dfu_traverser_t::get_match_cb () const
     return detail::dfu_impl_t::get_match_cb ();
 }
 
+const string &dfu_traverser_t::err_message () const
+{
+    return detail::dfu_impl_t::err_message ();
+}
+
 void dfu_traverser_t::set_graph (f_resource_graph_t *g)
 {
     detail::dfu_impl_t::set_graph (g);
@@ -128,6 +139,11 @@ void dfu_traverser_t::set_roots (map<subsystem_t, vtx_t> *roots)
 void dfu_traverser_t::set_match_cb (dfu_match_cb_t *m)
 {
     detail::dfu_impl_t::set_match_cb (m);
+}
+
+void dfu_traverser_t::clear_err_message ()
+{
+    detail::dfu_impl_t::clear_err_message ();
 }
 
 int dfu_traverser_t::initialize ()

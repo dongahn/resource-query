@@ -25,6 +25,12 @@
 #include <sys/time.h>
 #include "command.hpp"
 
+extern "C" {
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+}
+
 namespace Flux {
 namespace resource_model {
 
@@ -86,6 +92,9 @@ static int do_remove (resource_context_t *ctx, int64_t jobid)
            job_info_t *info = ctx->jobs[jobid];
            info->state = job_state_t::CANCELLED;
         }
+    } else {
+        cout << ctx->traverser.err_message ();
+        ctx->traverser.clear_err_message ();
     }
     return rc;
 }

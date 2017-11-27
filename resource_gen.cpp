@@ -30,6 +30,12 @@
 #include "resource_gen.hpp"
 #include "planner/planner.h"
 
+extern "C" {
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+}
+
 using namespace std;
 using namespace boost;
 using namespace Flux::resource_model;

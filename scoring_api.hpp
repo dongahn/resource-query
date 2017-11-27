@@ -52,6 +52,8 @@ struct eval_edg_t {
 
 struct eval_egroup_t {
     eval_egroup_t () { }
+    eval_egroup_t (int64_t s, unsigned c, unsigned n, unsigned x, bool r)
+        : score (s), count (c), needs (n), exclusive (x), root (r) {}
     eval_egroup_t (const eval_egroup_t &o)
     {
         score = o.score;
