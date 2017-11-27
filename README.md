@@ -120,6 +120,7 @@ resources:
     with:
       - type: slot
         count: 1
+        label: default
         with:
           - type: socket
             count: 2
