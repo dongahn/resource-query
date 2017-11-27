@@ -39,7 +39,7 @@ INFO: Loading a matcher: CA
       ------------socket1[1:x]
       ---------node0[1:s]
       ------rack0[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
@@ -85,7 +85,7 @@ INFO: =============================
       ------------socket1[1:s]
       ---------node1[1:s]
       ------rack0[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=2
 INFO: RESOURCES=ALLOCATED
@@ -170,7 +170,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node3[1:s]
       ------rack0[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=3
 INFO: RESOURCES=ALLOCATED
@@ -255,7 +255,7 @@ INFO: =============================
       ------------socket1[1:s]
       ---------node5[1:s]
       ------rack0[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=4
 INFO: RESOURCES=ALLOCATED
@@ -418,7 +418,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node9[1:s]
       ------rack0[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=5
 INFO: RESOURCES=ALLOCATED
@@ -581,7 +581,7 @@ INFO: =============================
       ------------socket1[1:s]
       ---------node13[1:s]
       ------rack0[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=6
 INFO: RESOURCES=ALLOCATED
@@ -627,7 +627,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node14[1:x]
       ------rack0[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=7
 INFO: RESOURCES=ALLOCATED
@@ -712,7 +712,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node16[1:x]
       ------rack0[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=8
 INFO: RESOURCES=ALLOCATED
@@ -875,7 +875,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node21[1:x]
       ------rack1[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=9
 INFO: RESOURCES=ALLOCATED

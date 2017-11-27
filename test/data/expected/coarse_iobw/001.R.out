@@ -3908,7 +3908,7 @@ INFO: Loading a matcher: CA
       ------pfsbw_test0[1:s]
       ---------bandwidth15[640:x]
       ------pfs0[1:s]
-      ---cz0[0:s]
+      ---cz0[1:s]
 INFO: =============================
 INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED

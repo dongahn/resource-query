@@ -39,7 +39,7 @@ INFO: Loading a matcher: CA
       ------------socket1[1:x]
       ---------node71[1:s]
       ------rack3[1:s]
-      ---medium0[0:s]
+      ---medium0[1:s]
 INFO: =============================
 INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED

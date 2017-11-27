@@ -2499,7 +2499,7 @@ INFO: Loading a matcher: CA
       ------------socket1[1:x]
       ---------node107[1:x]
       ------rack5[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
@@ -3756,7 +3756,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node43[1:x]
       ------rack2[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=2
 INFO: RESOURCES=ALLOCATED
@@ -4075,7 +4075,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node11[1:x]
       ------rack0[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=3
 INFO: RESOURCES=ALLOCATED
@@ -4238,7 +4238,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node3[1:x]
       ------rack0[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=4
 INFO: RESOURCES=ALLOCATED

@@ -624,7 +624,7 @@ INFO: Loading a matcher: CA
       ------------socket1[1:x]
       ---------node107[1:x]
       ------rack5[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
@@ -1256,7 +1256,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node91[1:x]
       ------rack5[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=2
 INFO: RESOURCES=ALLOCATED
@@ -1888,7 +1888,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node75[1:x]
       ------rack4[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=3
 INFO: RESOURCES=ALLOCATED
@@ -2520,7 +2520,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node59[1:x]
       ------rack3[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=4
 INFO: RESOURCES=ALLOCATED
@@ -3152,7 +3152,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node43[1:x]
       ------rack2[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=5
 INFO: RESOURCES=ALLOCATED
@@ -3784,7 +3784,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node27[1:x]
       ------rack1[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=6
 INFO: RESOURCES=ALLOCATED
@@ -3869,7 +3869,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node11[1:x]
       ------rack0[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=7
 INFO: RESOURCES=ALLOCATED
@@ -3954,7 +3954,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node9[1:x]
       ------rack0[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=8
 INFO: RESOURCES=ALLOCATED
@@ -4039,7 +4039,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node7[1:x]
       ------rack0[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=9
 INFO: RESOURCES=ALLOCATED
@@ -4124,7 +4124,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node5[1:x]
       ------rack0[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=10
 INFO: RESOURCES=ALLOCATED
@@ -4209,7 +4209,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node3[1:x]
       ------rack0[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=11
 INFO: RESOURCES=ALLOCATED
@@ -4294,7 +4294,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node1[1:x]
       ------rack0[1:s]
-      ---resv_test0[0:s]
+      ---resv_test0[1:s]
 INFO: =============================
 INFO: JOBID=12
 INFO: RESOURCES=ALLOCATED

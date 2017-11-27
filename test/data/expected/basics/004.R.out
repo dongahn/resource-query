@@ -21,7 +21,7 @@ INFO: Loading a matcher: CA
       ------------socket1[1:x]
       ---------node1[1:s]
       ------rack0[1:s]
-      ---tiny0[0:s]
+      ---tiny0[1:s]
 INFO: =============================
 INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
@@ -49,7 +49,7 @@ INFO: =============================
       ------------socket1[1:x]
       ---------node0[1:s]
       ------rack0[1:s]
-      ---tiny0[0:s]
+      ---tiny0[1:s]
 INFO: =============================
 INFO: JOBID=2
 INFO: RESOURCES=ALLOCATED

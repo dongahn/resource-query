@@ -44,7 +44,7 @@ INFO: Loading a matcher: CA
       ------------bb2[256:x]
       ---------node107[1:s]
       ------rack5[1:s]
-      ---advanced_test0[0:s]
+      ---advanced_test0[1:s]
 INFO: =============================
 INFO: JOBID=1
 INFO: RESOURCES=ALLOCATED
