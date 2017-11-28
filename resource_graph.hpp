@@ -51,10 +51,10 @@ typedef adjacency_list<vecS, vecS, directedS, resource_pool_t,
                        resource_relation_t, std::string>  resource_graph_t;
 
 /*! For each chosen subsystem, a selector has std::set<string>.
- * If edge/vertex's member_of[subsystem] matches with one
- * of these strings, select that egde/vertex. Edge/vertex itself
- * can also self-select. If its member_of[subsystem] has been
- * annotated with '*', it is selected.
+ *  If edge/vertex's member_of[subsystem] matches with one
+ *  of these strings, select that egde/vertex. Edge/vertex itself
+ *  can also self-select. If its member_of[subsystem] has been
+ *  annotated with '*', it is selected.
  */
 template <typename graph_entity, typename inframap>
 class subsystem_selector_t {

@@ -88,32 +88,51 @@ struct schedule_t {
     schedule_t () { }
     schedule_t (const schedule_t &o)
     {
-        tags = o.tags;
-        allocations = o.allocations;
-        reservations = o.reservations;
-        plans = o.plans;
-        x_checker = o.x_checker;
-#if 0
-        if (o.plans)
-            plans = planner_copy (o.plans);
-        if (o.x_checker)
-            x_checker = planner_copy (o.x_checker);
-#endif
+        // copy constructor does not copy the contents
+        // of the schedule tables and of the planner objects.
+        int64_t base_time = planner_base_time (o.plans);
+        uint64_t duration = planner_duration (o.plans);
+        size_t len = planner_resources_len (o.plans);
+        plans = planner_new (base_time, duration,
+                             planner_resource_totals (o.plans),
+                             planner_resource_types (o.plans), len);
+
+        base_time = planner_base_time (o.x_checker);
+        duration = planner_duration (o.x_checker);
+        len = planner_resources_len (o.x_checker);
+        x_checker = planner_new (base_time, duration,
+                                 planner_resource_totals (o.x_checker),
+                                 planner_resource_types (o.x_checker), len);
     }
     schedule_t &operator= (const schedule_t &o)
     {
-        tags = o.tags;
-        allocations = o.allocations;
-        reservations = o.reservations;
-        plans = o.plans;
-        x_checker = o.x_checker;
-#if 0
-        if (o.plans)
-            plans = planner_copy (o.plans);
-        if (o.x_checker)
-            x_checker = planner_copy (o.x_checker);
-#endif
+        // assign operator does not copy the contents
+        // of the schedule tables and of the planner objects.
+        int64_t base_time = planner_base_time (o.plans);
+        uint64_t duration = planner_duration (o.plans);
+        size_t len = planner_resources_len (o.plans);
+        plans = planner_new (base_time, duration,
+                             planner_resource_totals (o.plans),
+                             planner_resource_types (o.plans), len);
+
+        base_time = planner_base_time (o.x_checker);
+        duration = planner_duration (o.x_checker);
+        len = planner_resources_len (o.x_checker);
+        x_checker = planner_new (base_time, duration,
+                                 planner_resource_totals (o.x_checker),
+                                 planner_resource_types (o.x_checker), len);
         return *this;
+    }
+    ~schedule_t ()
+    {
+        tags.clear ();
+        allocations.clear ();
+        reservations.clear ();
+        x_spans.clear ();
+        if (plans)
+            planner_destroy (&plans);
+        if (x_checker)
+            planner_destroy (&x_checker);
     }
 
     std::map<int64_t, int64_t> tags;
@@ -148,22 +167,38 @@ struct pool_infra_t : public infra_base_t {
     pool_infra_t () { }
     pool_infra_t (const pool_infra_t &o): infra_base_t (o)
     {
-        job2span = o.job2span;
-        //subplans = o.subplans;
+        // don't copy the content of infrastructure tables and subtree
+        // planner objects.
         colors = o.colors;
+        for (auto &kv : o.subplans) {
+            planner_t *p = kv.second;
+            if (!p)
+                continue;
+            int64_t base_time = planner_base_time (p);
+            uint64_t duration = planner_duration (p);
+            size_t len = planner_resources_len (p);
+            subplans[kv.first] = planner_new (base_time, duration,
+                                     planner_resource_totals (p),
+                                     planner_resource_types (p), len);
+        }
     }
     pool_infra_t &operator= (const pool_infra_t &o)
     {
+        // don't copy the content of infrastructure tables and subtree
+        // planner objects.
         infra_base_t::operator= (o);
-        job2span = o.job2span;
-        subplans = o.subplans;
         colors = o.colors;
-#if 0
-        for (auto &kv : o.subplans)
-            if (kv.second)
-                subplans[kv.first] = planner_copy (kv.second);
-#endif
-
+        for (auto &kv : o.subplans) {
+            planner_t *p = kv.second;
+            if (!p)
+                continue;
+            int64_t base_time = planner_base_time (p);
+            uint64_t duration = planner_duration (p);
+            size_t len = planner_resources_len (p);
+            subplans[kv.first] = planner_new (base_time, duration,
+                                     planner_resource_totals (p),
+                                     planner_resource_types (p), len);
+        }
         return *this;
     }
     virtual ~pool_infra_t ()
