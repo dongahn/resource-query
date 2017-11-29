@@ -1,0 +1,121 @@
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 10 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 20 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 30 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 40 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 50 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 60 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 70 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 80 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 90 jobs
+
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.01.1node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.02.4node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.03.8node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.04.16node.yaml
+match allocate_orelse_reserve ../data/jobspecs/many_jobs/test.06.64node.yaml
+# So far 100 jobs
+
+quit
