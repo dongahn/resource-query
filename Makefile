@@ -2,8 +2,8 @@ CPP           := g++
 BOOST_LDFLAGS := -L/usr/local/lib \
 	             -lboost_system -lboost_filesystem -lboost_graph \
                  -lyaml-cpp -lreadline
-LDFLAGS       := -O0 -g $(BOOST_LDFLAGS) -L./planner -lplanner -lczmq -lzmq
-CPPFLAGS      := -O0 -g -std=c++11 -MMD -MP
+LDFLAGS       := -O3 $(BOOST_LDFLAGS) -L./planner -lplanner -lczmq -lzmq
+CPPFLAGS      := -O3 -std=c++11 -MMD -MP
 INCLUDES      := -I/usr/include -I/usr/local/include
 OBJS          := resource-query.o \
                  command.o \
