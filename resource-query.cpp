@@ -238,7 +238,7 @@ static int set_subsystems_use (resource_context_t *ctx, string n)
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "*");
         if ( !rc && (rc = subsystem_exist (ctx, "power")) == 0)
-            matcher.add_subsystem ("power", "*");
+            matcher.add_subsystem ("power", "draws_from");
     } else if (iequals (matcher_type, string ("IB+IBBA"))) {
         if ( (rc = subsystem_exist (ctx, "ibnet")) == 0)
             matcher.add_subsystem ("ibnet", "connected_down");
@@ -248,7 +248,7 @@ static int set_subsystems_use (resource_context_t *ctx, string n)
         if ( (rc = subsystem_exist (ctx, "containment")) == 0)
             matcher.add_subsystem ("containment", "contains");
         if ( (rc = subsystem_exist (ctx, "power")) == 0)
-            matcher.add_subsystem ("power", "drawn");
+            matcher.add_subsystem ("power", "draws_from");
         if ( !rc && (rc = subsystem_exist (ctx, "ibnet")) == 0)
             matcher.add_subsystem ("ibnet", "connected_up");
     } else if (iequals (matcher_type, string ("V+PFS1BA"))) {
