@@ -377,10 +377,8 @@ int dfu_impl_t::aux_upv (const jobmeta_t &meta, vtx_t u, const subsystem_t &aux,
         || (m_match->aux_discover_vtx (u, aux, resources, *m_graph)) != 0)
         goto done;
 
-    (*m_graph)[u].idata.colors[aux] = m_color.gray (m_color_base);
     if (u != (*m_roots)[aux])
         explore (meta, u, aux, resources, excl, visit_t::UPV, upv);
-    (*m_graph)[u].idata.colors[aux] = m_color.black (m_color_base);
 
     p = (*m_graph)[u].schedule.plans;
     if ( (avail = planner_avail_resources_during (p, at, duration, 0)) == 0) {
