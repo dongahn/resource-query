@@ -1,0 +1,3 @@
+match allocate ../data/jobspecs/simple_power/test.01.powerpanel1.pdu1.slot9.node1.yaml
+match allocate ../data/jobspecs/simple_power/test.02.slot2.node1.yaml
+quit

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- 1 subsystem, cluster[1]->rack[1]->node[2]->socket[2]->core[18]  -->
-<!--                                                     ->memory[8] -->
-<!--                                                     ->gpu[1]    -->
-<!-- Memory pool is modeled as 4 x 2GB                               -->
+<!-- 1 subsystem, cluster[1]->rack[4]->node[18]->socket[2]->core[18]  -->
+<!--                                                      ->memory[8] -->
+<!--                                                      ->gpu[1]    -->
+<!-- Memory pool is modeled as 4 x 2GB                                -->
+<!-- Simple power subsystem                                           -->
 
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns">
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -67,14 +68,14 @@
     </key>
 
 
-    <!-- generation recipe for the tiny cluster         -->
-    <graph id="tiny" edgedefault="directed">
+    <!-- generation recipe for the power cluster         -->
+    <graph id="power" edgedefault="directed">
 
         <!-- containment subsystem generation recipe    -->
         <node id="cluster">
             <data key="root">1</data>
             <data key="type">cluster</data>
-            <data key="basename">tiny</data> 
+            <data key="basename">power</data> 
         </node>
         <node id="rack">
             <data key="type">rack</data>
@@ -108,12 +109,12 @@
         </node>
 
         <edge id="cluster2rack" source="cluster" target="rack">
-            <data key="multi_scale">1</data>
+            <data key="multi_scale">4</data>
         </edge>
         <edge id="rack2pdu" source="rack" target="pdu"/>
         <edge id="rack2node" source="rack" target="node">
             <data key="id_scope">1</data>
-            <data key="multi_scale">2</data>
+            <data key="multi_scale">18</data>
         </edge>
         <edge id="node2socket" source="node" target="socket">
             <data key="multi_scale">2</data>
@@ -138,15 +139,36 @@
             <data key="basename">powerpanel</data>
             <data key="subsystem">power</data>
         </node>
+        <node id="powerpanel_capacity">
+            <data key="type">power</data>
+            <data key="basename">power</data>
+            <data key="subsystem">power</data>
+            <data key="size">10</data>
+            <data key="unit">KW</data>
+        </node>
         <node id="pdu_power">
             <data key="type">pdu</data>
             <data key="basename">pdu</data>
             <data key="subsystem">power</data>
         </node>
+        <node id="pdu_power_capacity">
+            <data key="type">power</data>
+            <data key="basename">power</data>
+            <data key="subsystem">power</data>
+            <data key="size">10</data>
+            <data key="unit">KW</data>
+        </node>
         <node id="node_power">
             <data key="type">node</data>
             <data key="basename">node</data>
             <data key="subsystem">power</data>
+        </node>
+        <node id="node_power_capacity">
+            <data key="type">power</data>
+            <data key="basename">power</data>
+            <data key="subsystem">power</data>
+            <data key="size">10</data>
+            <data key="unit">KW</data>
         </node>
 
         <edge id="powerpanel2pdu" source="powerpanel" target="pdu_power">
@@ -155,6 +177,12 @@
             <data key="rrelation">draws_from</data>
             <data key="gen_method">ASSOCIATE_IN</data>
         </edge>
+        <edge id="powerpanel2powerpanel_capacity" source="powerpanel" target="powerpanel_capacity">
+            <data key="e_subsystem">power</data>
+            <data key="relation">supplies_to</data>
+            <data key="rrelation">draws_from</data>
+            <data key="multi_scale">200</data>
+        </edge>
         <edge id="pdu2node" source="pdu_power" target="node_power">
             <data key="e_subsystem">power</data>
             <data key="relation">supplies_to</data>
@@ -162,6 +190,18 @@
             <data key="gen_method">ASSOCIATE_BY_PATH_IN</data>
             <data key="as_tgt_uplvl">1</data>
             <data key="as_src_uplvl">1</data>
+        </edge>
+        <edge id="pdu_power2pdu_power_capacity" source="pdu_power" target="pdu_power_capacity">
+            <data key="e_subsystem">power</data>
+            <data key="relation">supplies_to</data>
+            <data key="rrelation">draws_from</data>
+            <data key="multi_scale">40</data>
+        </edge>
+        <edge id="node_power" source="node_power" target="node_power_capacity">
+            <data key="e_subsystem">power</data>
+            <data key="relation">supplies_to</data>
+            <data key="rrelation">draws_from</data>
+            <data key="multi_scale">2</data>
         </edge>
     </graph>
 </graphml>
