@@ -503,7 +503,7 @@ comparator of this method is `fold::greater`, it sorts the cores in
 descending ID order. This way, the cores with higher IDs get selected first.
 
 If the visiting vertex satisfies the request, it sets the score
-of the visiting vertex using `set_overall_score ()` method.
+of the visiting vertex using `set_overall_score ()` method at line #111.
 In this case, the score is merely the ID number of the visiting vertex.  
 
 Similarly, `dom_finish_graph ()` performs the same logic
@@ -525,7 +525,7 @@ opportunity to score all of the the child resources of the discovered
 
 The examples in `dfu_match_id_based.hpp` uses `choose_accum_all ()`
 method within the scoring API object to sort all of the child resources
-of `slot` according to its selection policy.
+of `slot` according to the selection policies.
 
 The Scoring API classes and implementation are entirely located in
 `scoring_api.hpp`.
@@ -652,7 +652,7 @@ resources:
                             count: 2
 ```
 
-In general, to be able to handle a job specification where resource requests
+In general, to be able to handle a jobspec where resource requests
 of a same type appears at the same hierarchical level (in this case compute
 `node` type under the `rack` level), the traverser must be able to perform
 a subtree walk for each of them to evaluate a match.  However, DFU does not
@@ -661,7 +661,7 @@ this matching problem.
 
 Note that DFU can solve similar but slightly different matching problem:
 different `node` types are contained within differently named `rack` types.
-For example, the following job specification can be matched if the
+For example, the following jobspec can be matched if the
 underlying resource model labels the type of the rack with the beefy compute
 nodes as `rack` and the other as `birack`.
 
@@ -710,10 +710,10 @@ nodes as `rack` and the other as `birack`.
 
 When more advanced classes of resource selection policies are required,
 you need to introduce new traversal types. For example, an ability
-to traverse a subtree more than once for depth first walk--e.g., Loop-aware
+to traverse a subtree more than once for depth-first walk--e.g., Loop-aware
 DFU--can solve the examples shown above.
-We designed our scheduling infrastructure to be extendable. In fact,
-it is our future work to extend our infrastracture with more capable
+We designed our scheduling infrastructure to be extendable, and a part
+of our future plan is to extend our infrastracture with more capable
 traversal types.
 
 If you are interested in our earlier discussions on the different classes
