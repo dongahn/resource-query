@@ -500,7 +500,7 @@ available. (line #105).
 `choose_accum_best_k ()` uses the scores that have already been calculated
 during the subtree walk at the core resource level. Because the default
 comparator of this method is `fold::greater`, it sorts the cores in
-descending ID order.
+descending ID order. This way, the cores with higer IDs get selected first.
 
 If the visiting vertex satisfies the request, it sets the score
 of the visiting vertex using `set_overall_score ()` method.
