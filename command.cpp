@@ -257,6 +257,7 @@ int cmd_cat (resource_context_t *ctx, vector<string> &args)
     while (getline (jspec_in, line))
         cout << line << endl;
     cout << "INFO: " << "Jobspec in " << jspec_filename << endl;
+    jspec_in.close ();
     return 0;
 }
 
@@ -286,7 +287,6 @@ int cmd_help (resource_context_t *ctx, vector<string> &args)
 
 int cmd_quit (resource_context_t *ctx, vector<string> &args)
 {
-    cout << "INFO: " << "Bye bye " << endl;
     return -1;
 }
 
