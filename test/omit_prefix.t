@@ -18,21 +18,21 @@ query="${SHARNESS_TEST_SRCDIR}/../resource-query"
 cmds001="${cmd_dir}/test002.fullspec.cmds"
 test001_desc="match allocate with fully specified (pol=hi)"
 test_expect_success "${test001_desc}" '
-    ${query} -G ${grugs} -S CA -P high < ${cmds001} > 001.R.out &&
+    ${query} -G ${grugs} -S CA -P high -t 001.R.out < ${cmds001} &&
     test_cmp 001.R.out ${exp_dir}/001.R.out
 '
 
 cmds002="${cmd_dir}/test002.partial-from-rack"
 test002_desc="match allocate with partially specified from rack (pol=hi)"
 test_expect_success "${test002_desc}" '
-    ${query} -G ${grugs} -S CA -P high < ${cmds002} > 002.R.out &&
+    ${query} -G ${grugs} -S CA -P high -t 002.R.out < ${cmds002} &&
     test_cmp 002.R.out ${exp_dir}/002.R.out
 '
 
 cmds003="${cmd_dir}/test002.partial-from-node"
 test003_desc="match allocate with partially specified from node (pol=hi)"
 test_expect_success "${test003_desc}" '
-    ${query} -G ${grugs} -S CA -P high < ${cmds003} > 003.R.out &&
+    ${query} -G ${grugs} -S CA -P high -t 003.R.out < ${cmds003} &&
     test_cmp 003.R.out ${exp_dir}/003.R.out
 '
 
@@ -45,21 +45,21 @@ test_expect_success "${test003_desc}" '
 cmds004="${cmd_dir}/test002.fullspec.cmds"
 test004_desc="match allocate with fully specified (pol=low)"
 test_expect_success "${test004_desc}" '
-    ${query} -G ${grugs} -S CA -P low < ${cmds004} > 004.R.out &&
+    ${query} -G ${grugs} -S CA -P low -t 004.R.out < ${cmds004} &&
     test_cmp 004.R.out ${exp_dir}/004.R.out
 '
 
 cmds005="${cmd_dir}/test002.partial-from-rack"
 test005_desc="match allocate with partially specified from rack (pol=low)"
 test_expect_success "${test005_desc}" '
-    ${query} -G ${grugs} -S CA -P low < ${cmds005} > 005.R.out &&
+    ${query} -G ${grugs} -S CA -P low -t 005.R.out < ${cmds005} &&
     test_cmp 005.R.out ${exp_dir}/005.R.out
 '
 
 cmds006="${cmd_dir}/test002.partial-from-node"
 test006_desc="match allocate with partially specified from node (pol=low)"
 test_expect_success "${test006_desc}" '
-    ${query} -G ${grugs} -S CA -P low < ${cmds006} > 006.R.out &&
+    ${query} -G ${grugs} -S CA -P low -t 006.R.out < ${cmds006} &&
     test_cmp 006.R.out ${exp_dir}/006.R.out
 '
 

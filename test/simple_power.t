@@ -18,7 +18,7 @@ query="${SHARNESS_TEST_SRCDIR}/../resource-query"
 cmds001="${cmd_dir}/test010.power.cmds"
 test001_desc="match allocate with simple power configuration (pol=hi)"
 test_expect_success "${test001_desc}" '
-    ${query} -G ${grugs} -S PA -P high < ${cmds001} > 001.R.out &&
+    ${query} -G ${grugs} -S PA -P high -t 001.R.out < ${cmds001} &&
     test_cmp 001.R.out ${exp_dir}/001.R.out
 '
 
@@ -31,7 +31,7 @@ test_expect_success "${test001_desc}" '
 cmds002="${cmd_dir}/test010.power.cmds"
 test002_desc="match allocate with simple power configuration (pol=low)"
 test_expect_success "${test002_desc}" '
-    ${query} -G ${grugs} -S PA -P low < ${cmds002} > 002.R.out &&
+    ${query} -G ${grugs} -S PA -P low -t 002.R.out < ${cmds002} &&
     test_cmp 002.R.out ${exp_dir}/002.R.out
 '
 
