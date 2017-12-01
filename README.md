@@ -13,7 +13,7 @@ help with our design decisions and development process in general. Second,
 this utility is designed to serve as a debugging and testing interface for
 our scheduling infrastructure. Finally, `resource-query` aims to facilitate
 exascale system-software co-design activities, and it does this by enabling
-advanced scheduler developers and policy writers (e.g., IO bandwidth-aware or
+advanced scheduler developers and policy writers (e.g., IO bandwidth- or
 power-aware policies) to test their HPC resource representation and selection
 ideas in a much more simplified, easy-to-use environment.
 
@@ -38,10 +38,10 @@ The main cli command is `match.` This command takes in a jobspec file name
 and either allocates or reserves its best-matching resources. Likewise, this
 command provides two subcommands: `allocate` will try to allocate the
 best-matching resources for the given jobspec; `allocate_orelse_reserve` will
-try to reserve the resources into the future if an allocation cannot be
-created on the current resource state.  
-By contrast, `allocate` will simply not allocate resources if matching
-resources are not found in the current resource state.
+try to reserve the resources into the future (i.e., earliest possibly
+scheduable point), if an allocation cannot be created on the current
+resource state.  By contrast, `allocate` will simply not allocate
+resources if matching resources are not found in the current resource state.
 
 The following command allocated the best-matching resources for the
 specification contained in `test.jobspec`:
@@ -94,7 +94,8 @@ fined-grained exclusive memory allocation, for instance, you should first
 model your memory pool vertices with smaller memory unit (e.g., 256MB).
 
 By contrast, the following command reserved the best-matching resources
-for `test.jobspec`.
+for `test.jobspec`. Notice the output difference: `SCHEDULED AT=Now`
+vs. `SCHEDULED AT=3600`
 
 ```
 resource-query> match allocate_orelse_reserve test.jobspec
@@ -161,26 +162,27 @@ tasks:
 ```
 
 Internally, here is how `resource-query` uses our scheduling infrastructure
-for matching. It simply passes a Jobspec object into a traversal interface
-of our infrastructure to traverse in a predefined order the resource graph
+for matching. Upon receiving a `match` command, it creates a Jobspec object
+and simply passes it into a traversal interface of our infrastructure
+to traverse in a predefined order the resource graph
 data store previously populated in accordance with a GRUG file.
 
 While traversing, the traverser calls back a callback method of the selected
-callback plugin on certain graph visit events. The matcher callback plugin
+matcher plugin on certain graph visit events. The matcher callback plugin
 represents a resource selection policy. It evaluates the visiting resource
 vertex and passes its score to the infrastructure, which then later uses
 this score information to determine the best-matching resources to select.
 
 Currently, `resource-query` supports only one traversal type as our scheduling
 infrastructure implements only one type: depth-first traversal on the dominant
-subsystem and up-walk traversal on one or more auxiliary subsystems.
+subsystem and up traversal on one or more auxiliary subsystems.
 The traversal capabilities will be expanded as more advanced types will be
 designed and developed.  
 
 The resource graph data are managed and organized around the concept
 of subsystems (e.g., hardware containment subsystem, power subsystem, network
-subsystem and etc). A subsystem is a set of resource vertices and edges
-that form certain relationships. 
+subsystem, etc). A subsystem is a subset of resource vertices and edges
+within the graph data, which forms certain relationships.
 A matcher subscribes to one of more these named subsystems as its dominant
 and/or auxiliary ones on which matches are performed.
 
@@ -188,12 +190,11 @@ While testing has mostly been done on the hardware containment subsystem
 to meet our shorter-term milestones, `resource-query` do offer options for
 choosing a predefined matcher that is configured to use different
 combinations of subsystems.
-
 Further, `resource-query` provides an option for using different
 resource-matching selection policies--e.g., select resources with high or low
 IDs first. For more information about its options, please type in
 `resource-query --help`. In addition, `resource-query> help` will print out
-messages that explain its various cli commands.
+a message that explains its various cli commands.
 
 ## Generating Resources Using GraphML (GRUG)
 
@@ -423,7 +424,7 @@ Usage: grug2dot <genspec>.graphml
 ## Resource Selection Policy
 Scheduler resource selection policy implementers can effect their policies
 by deriving from our base match callback class (`dfu_match_cb_t`) and
-overwriting one or more of its virtual methods. The DFU traverser's
+overriding one or more of its virtual methods. The DFU traverser's
 `run ()` method calls back these methods on well-defined graph vertex visit
 events and uses both match and score information to determine best matching.
 
