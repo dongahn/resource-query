@@ -12,7 +12,7 @@ developing a scalable batch-job scheduling infrastructure within Flux,
 help with our design decisions and development process in general. Second,
 this utility is designed to serve as a debugging and testing interface for
 our scheduling infrastructure. Finally, `resource-query` aims to facilitate
-Exascale system-software co-design activities, and it does this by enabling
+exascale system-software co-design activities, and it does this by enabling
 advanced scheduler developers and policy writers (e.g., IO bandwidth-aware or
 power-aware policies) to test their HPC resource representation and selection
 ideas in a much more simplified, easy-to-use environment.
