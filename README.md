@@ -382,7 +382,7 @@ distant ancestor, then the id space becomes global.
 
 For example,
 if `id_scope`=0, the id of the generating resource will be local to its parent.
-If `id_scope`=1, the id becomes local to its grand parent For example,
+If `id_scope`=1, the id becomes local to its grand parent. For example,
 in `rack[1]->node[18]->socket[2]->core[8]` configuration, if `id_scope` is 1,
 the id space of a `core` resource is local to the `node` level instead of the
 socket level.
@@ -402,7 +402,7 @@ to support the matchers of various types.
  
 ### GRUG Visualizer
 `grug2dot` utility can be used to generate a GraphViz dot file
-that can render the recipe graph. The dot file can be converted
+rendering the recipe graph. The dot file can be converted
 into svg format by typing in `dot -Tsvg output.dot -o output.svg`:
 
 ```
@@ -420,54 +420,33 @@ Usage: grug2dot <genspec>.graphml
 
 ```
 
-## Documentation for Flux Scheduling Infrastructure Code Base
-The source base has in-line documentation support for doxygen, which can
-be generated as:
-
-```
-$ cd doxy
-$ doxygen doxy_conf.txt
-$ cd ..
-```
-
-This will generate html, latex and man sub-directories under
-the doc directory. Open doc/html/index.html using your favorite web
-browser. NOTE for LLNL developers: This code doesn't build on TOSS2 systems
-because their default compiler versions are too old. Please use a TOSS3 machine
-or your own laptop (e.g. Mac OSX)
-
 ## Resource Selection Policy
-Scheduler resource selection policy implementers can effect
-their policies by deriving from our base match callback
-class (`dfu_match_cb_t`) and overwriting one or more of its virtual methods.
-The DFU traverser's `run ()` method calls back these methods
-on well-defined graph vertex visit events and uses both 
-match and score information to determine best matching.
+Scheduler resource selection policy implementers can effect their policies
+by deriving from our base match callback class (`dfu_match_cb_t`) and
+overwriting one or more of its virtual methods. The DFU traverser's
+`run ()` method calls back these methods on well-defined graph vertex visit
+events and uses both match and score information to determine best matching.
 
-Currently the supported visit events are: 
+Currently, the supported visit events are:
 
-- preorder, postorder, slot, and finish graph events on the selected
-dominant subsystem;
-- preorder and postorder events on one or more selected
-auxiliary subsystems.
+- preorder, postorder, slot, and finish graph events on the selected dominant
+subsystem;
+- preorder and postorder events on one or more selected auxiliary subsystems.
 
-`dfu_match_id_based.hpp` shows three demo match callback
-implementations. They only overwrite `dom_finish_vtx ()` and
-`dom_finish_graph ()` and `dom_finish_slot ()` to effect
-their selection policies as
+`dfu_match_id_based.hpp` shows three demo match callback implementations.
+They only override `dom_finish_vtx ()`, `dom_finish_graph ()` and
+`dom_finish_slot ()` to effect their selection policies, as
 they just use one dominant subsystem: `containment`.
+
 For example, the policy implemented in `high_first_t` provides
-preferences towards higher IDs for resource selection; for example,
-if node0 and node1 are both available and the user wanted only 1 node,
-it will select node1. The following is the source listing for
-its `dom_finish_vtx ()`. It is invoked when all of the subtree walk (on
-the selected dominant subsystem) and up walk (on the selected
-auxiliary subsystems) from the visiting vertex have been completed
-and there are enough resource units that can satisfy
-the job specification (i.e., method argument `resources`).
+preference towards higher IDs for resource selection; for example, if node0 and
+node1 are both available and the user wanted only 1 node, it will select node1.
 
-Note: up walk logic has not yet been fully tested and hardened.
-
+The following is the source listing for its `dom_finish_vtx ()`. It is invoked
+when all of the subtree walk (on the selected dominant subsystem) and up walk
+(on the selected auxiliary subsystems) from the visiting vertex have been completed
+and there are enough resource units to satisfy the job specification (i.e.,
+method argument `resources`).
 
 ```c++
  84     int dom_finish_vtx (vtx_t u, const subsystem_t &subsystem,
@@ -503,67 +482,66 @@ Note: up walk logic has not yet been fully tested and hardened.
 114     }
 ```
 
-The scoring API object, `dfu`, contains relevant resource information
-gathered as part of the subtree and up walks.
+The scoring API object, `dfu`, contains relevant resource information gathered
+as part of the subtree and up walks.
 
-For example, you are visiting
-a `socket` vertex and `dfu` contains a map of all of the resources
-that are at its subtree, which may be 18 compute cores and 4 units
-of 16GB.
+For example, you are visiting a `socket` vertex and `dfu` contains a map of
+all of the resources that are at its subtree, which may be 18 compute cores
+and 4 units of 16GB.
 Further, if the resource request was `slot[1]->socket[2]->core[4]`, 
-the passed `resources` at the `socket` vertex visit level
-would be `core[4]`. The method then checks the count satifiability
-of the visiting `socket`'s child resource and then calls
-`choose_accum_best_k ()` within `dfu` scoring API object
-to choose the best matching 4 cores among
-however many cores available.
+the passed `resources` at the `socket` vertex visit level would be `core[4]`.
 
-`choose_accum_best_k ()` uses the scores that have already been
-calculated during the subtree walk at the core resource level.
-Because the default comparator of this method is `fold::greater`,
-it sorts the cores in descending ID order.
+The method then checks the count satifiability of the visiting `socket`'s
+child resource and then calls `choose_accum_best_k ()` within `dfu` scoring
+API object to choose the best matching 4 cores among however many cores
+available. (line #105).
+
+`choose_accum_best_k ()` uses the scores that have already been calculated
+during the subtree walk at the core resource level. Because the default
+comparator of this method is `fold::greater`, it sorts the cores in
+descending ID order.
 
 If the visiting vertex satisfies the request, it sets the score
 of the visiting vertex using `set_overall_score ()` method.
 In this case, the score is merely the ID number of the visiting vertex.  
 
 Similarly, `dom_finish_graph ()` performs the same logic
-as `dom_finish_vertex ()` but has been introduced so that
-we can perform a selection for the root resource vertex
-(e.g., `cluster[1]`) without having to introduce special
-casing within `dom_finish_vtx ()`.
+as `dom_finish_vertex ()` but this has been introduced so that
+we can perform a selection for the first level resource request when
+the entire graph has completed (e.g., `cluster[1]`) without having to
+introduce special casing within `dom_finish_vtx ()`.
 
-Finally, `dom_finish_slot ()` is introduced so that the match
-callback can provide score information on the discovered slots
-using its comparator.
-Note that, though, there exists no real `slot` resource vertex in the
-resource graph, so you can't get a postorder visit event per each
+Finally, `dom_finish_slot ()` is introduced so that the match callback can
+provide score information on the discovered slots using its comparator.
+
+Note that, though, there is no real `slot` resource vertex in the
+resource graph, so you cannot get a postorder visit event per each
 slot. Instead, the DFU traverser by itself will perform the satisfiability
 check on the child resource shape of each slot. But this matcher
-callback method still provides an opportunity to the match
-callback class to score all of the the child resources
-of the discovered `slot`. This example
-uses `choose_accum_all ()` method within the scoring API
-object to sort all of the child resources of `slot` according
-to its selection policy.
+callback method still provides the match callback class with an
+opportunity to score all of the the child resources of the discovered
+`slot`.
 
-The Scoring API classes and implementation are entirely
-located in `scoring_api.hpp`.
+The examples in `dfu_match_id_based.hpp` uses `choose_accum_all ()`
+method within the scoring API object to sort all of the child resources
+of `slot` according to its selection policy.
+
+The Scoring API classes and implementation are entirely located in
+`scoring_api.hpp`.
 
 ## Fully vs. Paritially Specified Resource Request
 
-The resource section of a job specification can be fully
-or partitially hierarchically specified. A fully specified request describes
-the resource shape fully from the root to the requested resources with respect
-to the resource graph data used by `resource-query`. A partially
-specified resource request omits the prefix (i.e., from the root
-to the highest-level resources in the request). For example, if the resource
+The resource section of a job specification can be fully or partitially
+hierarchically specified. A fully specified request describes the resource
+shape fully from the root to the requested resources with respect
+to the resource graph data used by `resource-query`. A partially specified
+resource request omits the prefix (i.e., from the root to the highest-level
+resources in the request). For example, if the resource
 graph data used by `resource-query` is the following,
 
 ![](resource.png)
 
-then, the next fully hierarchically specifies
-the resource request:
+then, the next fully hierarchically specifies the resource request:
 
 ```yaml
 version: 1
@@ -589,8 +567,8 @@ resources:
 
 ```
 
-By contrast, the following partially hierarchically specifies
-the resource shape, as it omits from the `cluster` and `rack` levels.
+By contrast, the following partially hierarchically specifies the resource
+shape, as it omits from the `cluster` and `rack` levels.
 
 ```yaml
 version: 1
@@ -610,28 +588,27 @@ resources:
 
 ```
 
-Because the latter does not impose higher-level (i.e.,
-`cluster` and `rack` levels) constraints, `node` type resources
-will be evaluated by the match callbacks and all of them will be compared 
-at once to select the highest scored node. 
-On the other hand, with the higher-level constraints of the former specification,
-`resource-query` will choose the highest-scored node at the `rack` level
-in the same manner as how it enforces the lower-level constraints (e.g., `socket`).
+Because the latter does not impose higher-level (i.e., `cluster` and
+`rack` levels) constraints, `node` type resources will be evaluated by the match
+callbacks and all of them will be compared at once to select the highest scored
+node.  On the other hand, with the higher-level constraints of the former
+specification, `resource-query` will choose the highest-scored node at the
+`rack` level in the same manner as how it enforces the lower-level constraints
+(e.g., `socket`).
 
 
 ## Limitations of Depth-First and Up (DFU) Traversal
 
-You can implement a wide range of resource selection policy classes
-using the DFU traversal, in particular in combination
-with other mechanisms (e.g., choosing a different set and order of subsystems).
-DFU, however, is a simple, one-pass traversal type and hence there are
-inherient limitations associated with DFU, which may preclude you from
-implementing certain policies.
+You can implement a wide range of resource selection policy classes using the
+DFU traversal, in particular in combination with other mechanisms (e.g., choosing
+a different set and order of subsystems).  DFU, however, is a simple, one-pass
+traversal type and hence there are inherient limitations associated with DFU,
+which may preclude you from implementing certain policies.
 
-For example, currently DFU cannot handle the following job specification even
-if there is a rack that contains those nodes that can satisfy
-either type of node requirements: one with more cores and burst buffers (bb)
-and the other fewer cores with no advanced features.
+For example, DFU cannot currently handle the following job specification even
+if the underlying resource graph store has a rack that contains those compute
+nodes that can satisfy either type of node requirements: one with more cores
+and burst buffers (bb) and the other fewer cores with no advanced features.
 
 ```yaml
 version: 1
@@ -674,16 +651,15 @@ resources:
                             count: 2
 ```
 
-In general, to be able to handle a job specification
-where resource requests of a same type appears
-at the same hierarchical level (in this case compute `node` type
-under the `rack` level), the traverser must be able to
-perform a subtree walk for each of them to evaluate a match.
-However, DFU does not have an ability to repeat certain subtree
-walks and thus it cannot handle this matching problem.
+In general, to be able to handle a job specification where resource requests
+of a same type appears at the same hierarchical level (in this case compute
+`node` type under the `rack` level), the traverser must be able to perform
+a subtree walk for each of them to evaluate a match.  However, DFU does not
+have an ability to repeat certain subtree walks and thus it cannot handle
+this matching problem.
 
 Note that DFU can solve similar but slightly different matching problem:
-different `node` types are contained within differently named rack types.
+different `node` types are contained within differently named `rack` types.
 For example, the following job specification can be matched if the
 underlying resource model labels the type of the rack with the beefy compute
 nodes as `rack` and the other as `birack`.
@@ -729,16 +705,13 @@ nodes as `rack` and the other as `birack`.
                     with:
                       - type: core
                         count: 2
-
-
 ```
-
 
 When more advanced classes of resource selection policies are required,
 you need to introduce new traversal types. For example, an ability
-to traverse a subtree more than once for depth first walk
--- e.g., Loop-aware DFU -- can solve the examples shown above.
-We designed our scheduling infrastructure to be extended. In fact,
+to traverse a subtree more than once for depth first walk--e.g., Loop-aware
+DFU--can solve the examples shown above.
+We designed our scheduling infrastructure to be extendable. In fact,
 it is our future work to extend our infrastracture with more capable
 traversal types.
 
