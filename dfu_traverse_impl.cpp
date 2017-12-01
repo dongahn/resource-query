@@ -611,11 +611,12 @@ int dfu_impl_t::emit_edge (edg_t e)
     return 0;
 }
 
-int dfu_impl_t::emit_vertex (vtx_t u, unsigned int needs, bool exclusive)
+int dfu_impl_t::emit_vertex (vtx_t u, unsigned int needs, bool exclusive,
+                             stringstream &ss)
 {
     string mode = (exclusive)? "x" : "s";
-    cout << "      " << level () << (*m_graph)[u].name << "["
-         << needs << ":" << mode  << "]" << endl;
+    ss << "      " << level () << (*m_graph)[u].name << "["
+       << needs << ":" << mode  << "]" << endl;
     return 0;
 }
 
@@ -651,7 +652,7 @@ done:
 int dfu_impl_t::upd_sched (vtx_t u, const subsystem_t &s, unsigned int needs,
                            bool excl, int n, const jobmeta_t &meta,
                            map<string, int64_t> &dfu,
-                           map<string, int64_t> &to_parent)
+                           map<string, int64_t> &to_parent, stringstream &ss)
 {
     int rc = -1;
     if (excl && upd_plan (u, s, needs, excl, meta, n, to_parent) == -1)
@@ -686,7 +687,7 @@ int dfu_impl_t::upd_sched (vtx_t u, const subsystem_t &s, unsigned int needs,
         }
         for (auto &kv : dfu)
             accum_if (s, kv.first, kv.second, to_parent);
-        emit_vertex (u, needs, excl);
+        emit_vertex (u, needs, excl, ss);
     }
     m_trav_level--;
 done:
@@ -702,8 +703,8 @@ int dfu_impl_t::upd_upv (vtx_t u, const subsystem_t &subsystem,
 }
 
 int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
-                         const jobmeta_t &meta,
-                         map<string, int64_t> &to_parent)
+                         const jobmeta_t &meta, map<string, int64_t> &to_parent,
+                         stringstream &ss)
 {
     int n_plans = 0;
     map<string, int64_t> dfu;
@@ -721,7 +722,7 @@ int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
             unsigned int needs = (*m_graph)[*ei].idata.needs;
             vtx_t tgt = target (*ei, *m_graph);
             if (subsystem == dom)
-                n_plans += upd_dfv (tgt, needs, x, meta, dfu);
+                n_plans += upd_dfv (tgt, needs, x, meta, dfu, ss);
             else
                 n_plans += upd_upv (tgt, subsystem, needs, x, meta, dfu);
 
@@ -730,7 +731,7 @@ int dfu_impl_t::upd_dfv (vtx_t u, unsigned int needs, bool excl,
         }
     }
     (*m_graph)[u].idata.colors[dom] = m_color.black (m_color_base);
-    return upd_sched (u, dom, needs, excl, n_plans, meta, dfu, to_parent);
+    return upd_sched (u, dom, needs, excl, n_plans, meta, dfu, to_parent, ss);
 }
 
 int dfu_impl_t::rem_upv (vtx_t u, int64_t jobid)
@@ -1033,11 +1034,11 @@ int dfu_impl_t::select (Jobspec::Jobspec &j, vtx_t root, jobmeta_t &meta,
 }
 
 int dfu_impl_t::update (vtx_t root, jobmeta_t &meta, unsigned int needs,
-                        bool exclusive)
+                        bool exclusive, stringstream &ss)
 {
     map<string, int64_t> dfu;
     tick_color_base ();
-    return (upd_dfv (root, needs, exclusive, meta, dfu) > 0)? 0 : -1;
+    return (upd_dfv (root, needs, exclusive, meta, dfu, ss) > 0)? 0 : -1;
 }
 
 int dfu_impl_t::remove (vtx_t root, int64_t jobid)

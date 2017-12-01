@@ -53,6 +53,8 @@ struct test_params_t {
     std::string matcher_name;    /* Matcher name */
     std::string matcher_policy;  /* Matcher policy name */
     std::string o_fname;         /* Output file to dump the filtered graph */
+    std::ofstream r_out;
+    std::string r_fname;         /* Output file to dump the emitted R */
     std::string o_fext;          /* File extension */
     emit_format_t o_format;      /* Output graph format */
     bool elapse_time;            /* Print elapse time */

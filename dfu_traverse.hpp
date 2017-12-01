@@ -104,12 +104,14 @@ public:
      *                       allocate or allocate_orelse_reserve.
      *  \param id        job ID to use for the schedule operation.
      *  \param at[out]   when the job is scheduled if reserved.
+     *  \param ss        stringstream into which emitted R infor is stored.
      *  \return          0 on success; -1 on error.
      *                       EINVAL: graph, roots or match callback not set.
      *                       ENOTSUP: roots does not contain a subsystem the
      *                                match callback uses.
      */
-    int run (Jobspec::Jobspec &jobspec, match_op_t op, int64_t id, int64_t *at);
+    int run (Jobspec::Jobspec &jobspec, match_op_t op, int64_t id, int64_t *at,
+             std::stringstream &ss);
 
     /*! Remove the allocation/reservation referred to by jobid and update
      *  the resource state.

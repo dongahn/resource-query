@@ -99,22 +99,23 @@ static int do_remove (resource_context_t *ctx, int64_t jobid)
     return rc;
 }
 
-static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
-                                string &jobspec_fn, bool matched, int64_t at,
-                                double elapse)
+static void print_schedule_info (resource_context_t *ctx, ostream &out,
+                                 uint64_t jobid, string &jobspec_fn,
+                                 bool matched, int64_t at,
+                                 double elapse)
 {
     if (matched) {
         job_state_t st;
         string mode = (at == 0)? "ALLOCATED" : "RESERVED";
         string scheduled_at = (at == 0)? "Now" : to_string (at);
-        cout << "INFO:" << " =============================" << endl;
-        cout << "INFO:" << " JOBID=" << jobid << endl;
-        cout << "INFO:" << " RESOURCES=" << mode << endl;
-        cout << "INFO:" << " SCHEDULED AT=" << scheduled_at << endl;
+        out << "INFO:" << " =============================" << endl;
+        out << "INFO:" << " JOBID=" << jobid << endl;
+        out << "INFO:" << " RESOURCES=" << mode << endl;
+        out << "INFO:" << " SCHEDULED AT=" << scheduled_at << endl;
         if (ctx->params.elapse_time)
-            cout << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
+            out << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
 
-        cout << "INFO:" << " =============================" << endl;
+        out << "INFO:" << " =============================" << endl;
         st = (at == 0)? job_state_t::ALLOCATED : job_state_t::RESERVED;
         ctx->jobs[jobid] = new job_info_t (jobid, st, at, jobspec_fn, elapse);
         if (at == 0)
@@ -122,12 +123,12 @@ static void print_schedule_info (resource_context_t *ctx, uint64_t jobid,
         else
             ctx->reservations[jobid] = jobid;
     } else {
-        cout << "INFO:" << " =============================" << endl;
-        cout << "INFO: " << "No matching resources found" << endl;
-        cout << "INFO:" << " JOBID=" << jobid << endl;
+        out << "INFO:" << " =============================" << endl;
+        out << "INFO: " << "No matching resources found" << endl;
+        out << "INFO:" << " JOBID=" << jobid << endl;
         if (ctx->params.elapse_time)
-            cout << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
-        cout << "INFO:" << " =============================" << endl;
+            out << "INFO:" << " ELAPSE=" << to_string (elapse) << endl;
+        out << "INFO:" << " =============================" << endl;
     }
     ctx->jobid_counter++;
 }
@@ -153,20 +154,26 @@ int cmd_match (resource_context_t *ctx, vector<string> &args)
         jobspec_in.exceptions (std::ifstream::failbit | std::ifstream::badbit);
         jobspec_in.open (jobspec_fn);
         Flux::Jobspec::Jobspec job {jobspec_in};
+        stringstream r_emitted;
         double elapse = 0.0f;
         struct timeval st, et;
 
         gettimeofday (&st, NULL);
         if (args[1] == "allocate")
             rc = ctx->traverser.run (job, match_op_t::MATCH_ALLOCATE,
-                                     (int64_t)jobid, &at);
+                                     (int64_t)jobid, &at, r_emitted);
         else if (args[1] == "allocate_orelse_reserve")
             rc = ctx->traverser.run (job,
                                      match_op_t::MATCH_ALLOCATE_ORELSE_RESERVE,
-                                     (int64_t)jobid, &at);
+                                     (int64_t)jobid, &at, r_emitted);
         gettimeofday (&et, NULL);
         elapse = get_elapse_time (st, et);
-        print_schedule_info (ctx, jobid, jobspec_fn, (rc == 0), at, elapse);
+
+        ostream &out = (ctx->params.r_fname != "")? ctx->params.r_out : cout;
+        out << r_emitted.str ();
+
+        print_schedule_info (ctx, out, jobid, jobspec_fn, (rc == 0), at, elapse);
+        jobspec_in.close ();
 
     } catch (ifstream::failure &e) {
         cerr << "ERROR: Exception occurs for input file I/O" << e.what () << endl;

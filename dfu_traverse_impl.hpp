@@ -26,6 +26,7 @@
 #define DFU_TRAVERSE_IMPL_HPP
 
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include "system_defaults.hpp"
 #include "resource_data.hpp"
@@ -171,17 +172,20 @@ public:
     int select (Jobspec::Jobspec &jobspec, vtx_t root, jobmeta_t &meta,
                 bool exclusive, unsigned int *needs);
 
-    /*! Update the resource state based on the previous select invokcation
+    /*! Update the resource state based on the previous select invocation
      *  and emit the allocation/reservation information.
      *
      *  \param root      root resource vertex.
      *  \param meta      metadata on the job.
      *  \param needs     the number of root resources requested.
      *  \param excl      exclusive access requested.
-     *  \return          0 on success; -1 on error -- -- call err_message ()
+     *  \param ss        stringstream into which allocation/reservation
+     *                   information is printed.
+     *  \return          0 on success; -1 on error -- call err_message ()
      *                   for detail.
      */
-    int update (vtx_t root, jobmeta_t &meta, unsigned int needs, bool excl);
+    int update (vtx_t root, jobmeta_t &meta, unsigned int needs, bool excl,
+                std::stringstream &ss);
 
     /*! Remove the allocation/reservation referred to by jobid and update
      *  the resource state.
@@ -260,7 +264,8 @@ private:
 
     // Emit R
     int emit_edge (edg_t e);
-    int emit_vertex (vtx_t u, unsigned int needs, bool exclusive);
+    int emit_vertex (vtx_t u, unsigned int needs, bool exclusive,
+                     std::stringstream &ss);
 
     // Update resource graph data store
     int upd_plan (vtx_t u, const subsystem_t &s, unsigned int needs,
@@ -269,13 +274,15 @@ private:
     int upd_sched (vtx_t u, const subsystem_t &subsystem, unsigned int needs,
                    bool excl, int n, const jobmeta_t &meta,
                    std::map<std::string, int64_t> &dfu,
-                   std::map<std::string, int64_t> &to_parent);
+                   std::map<std::string, int64_t> &to_parent,
+                   std::stringstream &ss);
     int upd_upv (vtx_t u, const subsystem_t &subsystem, unsigned int needs,
                  bool excl, const jobmeta_t &meta,
                  std::map<std::string, int64_t> &to_parent);
     int upd_dfv (vtx_t u, unsigned int needs,
                  bool excl, const jobmeta_t &meta,
-                 std::map<std::string, int64_t> &to_parent);
+                 std::map<std::string, int64_t> &to_parent,
+                 std::stringstream &ss);
 
     // Remove allocation or reservations
     int rem_subtree_plan (vtx_t u, int64_t jobid, const std::string &subsystem);

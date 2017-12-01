@@ -179,7 +179,7 @@ int dfu_traverser_t::initialize (f_resource_graph_t *g,
 }
 
 int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
-                          int64_t jobid, int64_t *at)
+                          int64_t jobid, int64_t *at, stringstream &ss)
 {
     const subsystem_t &dom = get_match_cb ()->dom_subsystem ();
     if (!get_graph () || !get_roots ()
@@ -199,7 +199,7 @@ int dfu_traverser_t::run (Jobspec::Jobspec &jobspec, match_op_t op,
     meta.build (jobspec, true, jobid, *at);
     if ( (rc = schedule (jobspec, meta, x, op, root, &needs, dfv)) ==  0) {
         *at = meta.at;
-        rc = detail::dfu_impl_t::update (root, meta, needs, x);
+        rc = detail::dfu_impl_t::update (root, meta, needs, x, ss);
     }
     return rc;
 }
