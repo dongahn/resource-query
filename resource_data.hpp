@@ -34,7 +34,7 @@ namespace Flux {
 namespace resource_model {
 
 // We create an x_checker planner for each resource vertex for quick exclusivity
-// checking. We update the x_checker for all of the vertices involved in each
+// checking. We update x_checker for all of the vertices involved in each
 // job allocation/reservation -- subtract 1 from x_checker planner for the
 // scheduled span. Any vertex with less than X_CHECKER_NJOBS available in its
 // x_checker cannot be exclusively allocated or reserved.
@@ -88,39 +88,53 @@ struct schedule_t {
     schedule_t () { }
     schedule_t (const schedule_t &o)
     {
+        int64_t base_time = 0;
+        uint64_t duration = 0;
+        size_t len = 0;
+
         // copy constructor does not copy the contents
         // of the schedule tables and of the planner objects.
-        int64_t base_time = planner_base_time (o.plans);
-        uint64_t duration = planner_duration (o.plans);
-        size_t len = planner_resources_len (o.plans);
-        plans = planner_new (base_time, duration,
-                             planner_resource_totals (o.plans),
-                             planner_resource_types (o.plans), len);
-
-        base_time = planner_base_time (o.x_checker);
-        duration = planner_duration (o.x_checker);
-        len = planner_resources_len (o.x_checker);
-        x_checker = planner_new (base_time, duration,
-                                 planner_resource_totals (o.x_checker),
-                                 planner_resource_types (o.x_checker), len);
+        if (o.plans) {
+            base_time = planner_base_time (o.plans);
+            duration = planner_duration (o.plans);
+            len = planner_resources_len (o.plans);
+            plans = planner_new (base_time, duration,
+                                 planner_resource_totals (o.plans),
+                                 planner_resource_types (o.plans), len);
+        }
+        if (o.x_checker) {
+            base_time = planner_base_time (o.x_checker);
+            duration = planner_duration (o.x_checker);
+            len = planner_resources_len (o.x_checker);
+            x_checker = planner_new (base_time, duration,
+                                     planner_resource_totals (o.x_checker),
+                                     planner_resource_types (o.x_checker), len);
+        }
     }
     schedule_t &operator= (const schedule_t &o)
     {
+        int64_t base_time = 0;
+        uint64_t duration = 0;
+        size_t len = 0;
+
         // assign operator does not copy the contents
         // of the schedule tables and of the planner objects.
-        int64_t base_time = planner_base_time (o.plans);
-        uint64_t duration = planner_duration (o.plans);
-        size_t len = planner_resources_len (o.plans);
-        plans = planner_new (base_time, duration,
-                             planner_resource_totals (o.plans),
-                             planner_resource_types (o.plans), len);
-
-        base_time = planner_base_time (o.x_checker);
-        duration = planner_duration (o.x_checker);
-        len = planner_resources_len (o.x_checker);
-        x_checker = planner_new (base_time, duration,
-                                 planner_resource_totals (o.x_checker),
-                                 planner_resource_types (o.x_checker), len);
+        if (o.plans) {
+            base_time = planner_base_time (o.plans);
+            duration = planner_duration (o.plans);
+            len = planner_resources_len (o.plans);
+            plans = planner_new (base_time, duration,
+                                 planner_resource_totals (o.plans),
+                                 planner_resource_types (o.plans), len);
+        }
+        if (o.x_checker) {
+            base_time = planner_base_time (o.x_checker);
+            duration = planner_duration (o.x_checker);
+            len = planner_resources_len (o.x_checker);
+            x_checker = planner_new (base_time, duration,
+                                     planner_resource_totals (o.x_checker),
+                                     planner_resource_types (o.x_checker), len);
+        }
         return *this;
     }
     ~schedule_t ()
